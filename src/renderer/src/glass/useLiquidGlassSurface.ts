@@ -6,7 +6,7 @@ import {
 import { useLiquidGlassConfig } from "./LiquidGlassProvider";
 
 type BackdropFilterStyle = CSSProperties & {
-  WebkitBackdropFilter?: string;
+  WebkitFilter?: string;
 };
 
 type LiquidGlassSurfaceState<T extends HTMLElement> = {
@@ -81,8 +81,8 @@ export function useLiquidGlassSurface<T extends HTMLElement>(): LiquidGlassSurfa
     glass,
     glassStyle: glass
       ? {
-          backdropFilter: glass.filterRef,
-          WebkitBackdropFilter: glass.filterRef
+          filter: glass.filterRef,
+          WebkitFilter: glass.filterRef
         }
       : {}
   };
