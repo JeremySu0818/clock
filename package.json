@@ -1,0 +1,54 @@
+{
+  "name": "liquid-glass-clock",
+  "version": "1.0.0",
+  "description": "A frameless floating Electron desktop clock powered by solid-glass liquid refraction.",
+  "type": "module",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "postinstall": "node scripts/ensure-electron.cjs",
+    "dev": "node scripts/ensure-electron.cjs && electron-vite dev",
+    "typecheck": "tsc --noEmit",
+    "clean:release": "node scripts/clean-release.cjs",
+    "build": "npm run clean:release && npm run typecheck && electron-vite build && electron-builder --win portable --x64 && node scripts/prune-release.cjs"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "solid-glass": "^0.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.2",
+    "electron": "^42.0.1",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.4"
+  },
+  "build": {
+    "appId": "dev.codex.liquid-glass-clock",
+    "productName": "Liquid Glass Clock",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "LiquidGlassClock-${version}-${arch}.${ext}"
+    }
+  }
+}
