@@ -1,4 +1,4 @@
-# Liquid Glass Clock
+# Clock
 
 Transparent, frameless, always-on-top Electron desktop clock built with React, TypeScript, and `solid-glass`.
 

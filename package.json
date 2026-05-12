@@ -1,7 +1,7 @@
 {
-  "name": "liquid-glass-clock",
+  "name": "clock",
   "version": "1.0.0",
-  "description": "A frameless floating Electron desktop clock powered by solid-glass liquid refraction.",
+  "description": "",
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
@@ -29,8 +29,8 @@
     "vite": "^7.1.4"
   },
   "build": {
-    "appId": "dev.codex.liquid-glass-clock",
-    "productName": "Liquid Glass Clock",
+    "appId": "clock",
+    "productName": "Clock",
     "asar": true,
     "directories": {
       "output": "release"
@@ -48,7 +48,7 @@
           ]
         }
       ],
-      "artifactName": "LiquidGlassClock-${version}-${arch}.${ext}"
+      "artifactName": "Clock-${version}-${arch}.${ext}"
     }
   }
 }

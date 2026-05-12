@@ -6,21 +6,21 @@ import {
   ipcMain,
   Menu,
   screen,
-  session
-} from "electron";
-import { join } from "node:path";
+  session,
+} from 'electron';
+import { join } from 'node:path';
 
 const CLOCK_WINDOW_WIDTH = 540;
 const CLOCK_WINDOW_HEIGHT = 220;
 const WINDOW_MARGIN = 28;
-const WINDOW_METRICS_CHANNEL = "desktop-glass:window-metrics";
-const GET_WINDOW_METRICS_CHANNEL = "desktop-glass:get-window-metrics";
+const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
+const GET_WINDOW_METRICS_CHANNEL = 'desktop-glass:get-window-metrics';
 
-app.commandLine.appendSwitch("enable-gpu-rasterization");
-app.commandLine.appendSwitch("enable-zero-copy");
-app.commandLine.appendSwitch("disable-renderer-backgrounding");
-app.commandLine.appendSwitch("disable-background-timer-throttling");
-app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
 
 type DesktopGlassMetrics = {
   captureExcludesSelf: boolean;
@@ -42,7 +42,9 @@ type DesktopGlassMetrics = {
   };
 };
 
-function getVisibleWindowBounds(bounds: Electron.Rectangle): Electron.Rectangle {
+function getVisibleWindowBounds(
+  bounds: Electron.Rectangle,
+): Electron.Rectangle {
   const display = screen.getDisplayMatching(bounds);
   const { workArea } = display;
   const width = Math.min(bounds.width, workArea.width);
@@ -54,7 +56,7 @@ function getVisibleWindowBounds(bounds: Electron.Rectangle): Electron.Rectangle 
     x: Math.min(Math.max(bounds.x, workArea.x), maxX),
     y: Math.min(Math.max(bounds.y, workArea.y), maxY),
     width,
-    height
+    height,
   };
 }
 
@@ -64,8 +66,8 @@ function resetWindowToVisibleArea(window: BrowserWindow): void {
       x: window.getBounds().x,
       y: window.getBounds().y,
       width: CLOCK_WINDOW_WIDTH,
-      height: CLOCK_WINDOW_HEIGHT
-    })
+      height: CLOCK_WINDOW_HEIGHT,
+    }),
   );
 }
 
@@ -88,7 +90,7 @@ function getDesktopGlassMetrics(window: BrowserWindow): DesktopGlassMetrics {
   const display = screen.getDisplayMatching(bounds);
 
   return {
-    captureExcludesSelf: process.platform === "win32",
+    captureExcludesSelf: process.platform === 'win32',
     display: {
       id: String(display.id),
       scaleFactor: display.scaleFactor,
@@ -96,15 +98,15 @@ function getDesktopGlassMetrics(window: BrowserWindow): DesktopGlassMetrics {
         x: display.bounds.x,
         y: display.bounds.y,
         width: display.bounds.width,
-        height: display.bounds.height
-      }
+        height: display.bounds.height,
+      },
     },
     windowBounds: {
       x: bounds.x,
       y: bounds.y,
       width: bounds.width,
-      height: bounds.height
-    }
+      height: bounds.height,
+    },
   };
 }
 
@@ -113,13 +115,17 @@ function publishDesktopGlassMetrics(window: BrowserWindow): void {
     return;
   }
 
-  window.webContents.send(WINDOW_METRICS_CHANNEL, getDesktopGlassMetrics(window));
+  window.webContents.send(
+    WINDOW_METRICS_CHANNEL,
+    getDesktopGlassMetrics(window),
+  );
 }
 
 async function registerDisplayCaptureHandler(): Promise<void> {
   session.defaultSession.setDisplayMediaRequestHandler(
     async (_request, callback) => {
-      const focusedWindow = BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+      const focusedWindow =
+        BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
 
       if (!focusedWindow) {
         callback({});
@@ -128,14 +134,16 @@ async function registerDisplayCaptureHandler(): Promise<void> {
 
       const display = screen.getDisplayMatching(focusedWindow.getBounds());
       const sources = await desktopCapturer.getSources({
-        types: ["screen"],
+        types: ['screen'],
         thumbnailSize: {
           width: 1,
-          height: 1
-        }
+          height: 1,
+        },
       });
 
-      const source = sources.find((entry) => entry.display_id === String(display.id)) ?? sources[0];
+      const source =
+        sources.find((entry) => entry.display_id === String(display.id)) ??
+        sources[0];
 
       if (!source) {
         callback({});
@@ -143,10 +151,10 @@ async function registerDisplayCaptureHandler(): Promise<void> {
       }
 
       callback({
-        video: source
+        video: source,
       });
     },
-    { useSystemPicker: false }
+    { useSystemPicker: false },
   );
 }
 
@@ -155,8 +163,10 @@ function createClockWindow(): BrowserWindow {
   const initialBounds = getVisibleWindowBounds({
     width: CLOCK_WINDOW_WIDTH,
     height: CLOCK_WINDOW_HEIGHT,
-    x: Math.round(workArea.x + workArea.width - CLOCK_WINDOW_WIDTH - WINDOW_MARGIN),
-    y: Math.round(workArea.y + WINDOW_MARGIN)
+    x: Math.round(
+      workArea.x + workArea.width - CLOCK_WINDOW_WIDTH - WINDOW_MARGIN,
+    ),
+    y: Math.round(workArea.y + WINDOW_MARGIN),
   });
 
   const clockWindow = new BrowserWindow({
@@ -165,9 +175,9 @@ function createClockWindow(): BrowserWindow {
     x: initialBounds.x,
     y: initialBounds.y,
     transparent: true,
-    backgroundColor: "#00000000",
+    backgroundColor: '#00000000',
     frame: false,
-    titleBarStyle: "hidden",
+    titleBarStyle: 'hidden',
     autoHideMenuBar: true,
     hasShadow: false,
     resizable: false,
@@ -176,40 +186,41 @@ function createClockWindow(): BrowserWindow {
     fullscreenable: false,
     skipTaskbar: false,
     alwaysOnTop: true,
-      show: true,
-      webPreferences: {
-      preload: join(__dirname, "../preload/index.mjs"),
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: false,
-        backgroundThrottling: false
-      }
+    show: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.mjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
   });
 
-  clockWindow.setAlwaysOnTop(true, "screen-saver");
+  clockWindow.setAlwaysOnTop(true, 'screen-saver');
   clockWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   clockWindow.setMenuBarVisibility(false);
   clockWindow.setContentProtection(true);
 
-  clockWindow.once("ready-to-show", () => {
+  clockWindow.once('ready-to-show', () => {
     revealClockWindow(clockWindow);
   });
 
-  clockWindow.on("move", () => {
+  clockWindow.on('move', () => {
     publishDesktopGlassMetrics(clockWindow);
   });
 
-  clockWindow.on("resize", () => {
+  clockWindow.on('resize', () => {
     publishDesktopGlassMetrics(clockWindow);
   });
 
-  clockWindow.webContents.on("did-finish-load", () => {
+  clockWindow.webContents.on('did-finish-load', () => {
     revealClockWindow(clockWindow);
     publishDesktopGlassMetrics(clockWindow);
 
     setTimeout(() => {
       void clockWindow.webContents
-        .executeJavaScript(`
+        .executeJavaScript(
+          `
           ({
             bodyBackground: getComputedStyle(document.body).backgroundColor,
             captureState: document.querySelector('.liquid-glass-surface')?.getAttribute('data-capture-state'),
@@ -217,27 +228,24 @@ function createClockWindow(): BrowserWindow {
             desktopGlassType: typeof window.desktopGlass,
             rootHtmlLength: document.getElementById('root')?.innerHTML.length ?? 0
           })
-        `)
-        .then((snapshot) => {
-          console.log("[renderer-snapshot]", JSON.stringify(snapshot));
-        })
-        .catch((error) => {
-          console.error("[renderer-snapshot-error]", error);
-        });
+        `,
+        )
+        .then((snapshot) => {})
+        .catch((error) => {});
     }, 800);
   });
 
-  clockWindow.webContents.on("console-message", (_event, level, message, line, sourceId) => {
-    console.log(`[renderer-console:${level}] ${sourceId}:${line} ${message}`);
-  });
+  clockWindow.webContents.on(
+    'console-message',
+    (_event, level, message, line, sourceId) => {},
+  );
 
-  clockWindow.webContents.on("did-fail-load", (_event, code, description, validatedUrl) => {
-    console.error(`[did-fail-load] code=${code} description=${description} url=${validatedUrl}`);
-  });
+  clockWindow.webContents.on(
+    'did-fail-load',
+    (_event, code, description, validatedUrl) => {},
+  );
 
-  clockWindow.webContents.on("render-process-gone", (_event, details) => {
-    console.error("[render-process-gone]", JSON.stringify(details));
-  });
+  clockWindow.webContents.on('render-process-gone', (_event, details) => {});
 
   setTimeout(() => {
     revealClockWindow(clockWindow);
@@ -247,7 +255,7 @@ function createClockWindow(): BrowserWindow {
   if (rendererUrl) {
     void clockWindow.loadURL(rendererUrl);
   } else {
-    void clockWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    void clockWindow.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
   return clockWindow;
@@ -261,7 +269,7 @@ app.whenReady().then(async () => {
     const window = BrowserWindow.fromWebContents(event.sender);
 
     if (!window) {
-      throw new Error("Unable to resolve BrowserWindow for renderer.");
+      throw new Error('Unable to resolve BrowserWindow for renderer.');
     }
 
     return getDesktopGlassMetrics(window);
@@ -269,7 +277,7 @@ app.whenReady().then(async () => {
 
   createClockWindow();
 
-  globalShortcut.register("CommandOrControl+Alt+Space", () => {
+  globalShortcut.register('CommandOrControl+Alt+Space', () => {
     const window = BrowserWindow.getAllWindows()[0];
 
     if (!window) {
@@ -280,14 +288,14 @@ app.whenReady().then(async () => {
     window.focus();
   });
 
-  screen.on("display-metrics-changed", () => {
+  screen.on('display-metrics-changed', () => {
     for (const window of BrowserWindow.getAllWindows()) {
       resetWindowToVisibleArea(window);
       publishDesktopGlassMetrics(window);
     }
   });
 
-  app.on("activate", () => {
+  app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createClockWindow();
     }
@@ -299,7 +307,7 @@ const gotSingleInstanceLock = app.requestSingleInstanceLock();
 if (!gotSingleInstanceLock) {
   app.quit();
 } else {
-  app.on("second-instance", () => {
+  app.on('second-instance', () => {
     const window = BrowserWindow.getAllWindows()[0];
 
     if (!window) {
@@ -312,12 +320,12 @@ if (!gotSingleInstanceLock) {
   });
 }
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on("will-quit", () => {
+app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });

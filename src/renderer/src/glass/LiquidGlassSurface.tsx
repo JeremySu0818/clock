@@ -129,7 +129,7 @@ export function LiquidGlassSurface({
         const message = error instanceof Error ? error.message : "Unknown capture error";
         setCaptureError(message);
         setIsCaptureReady(false);
-        console.error("Unable to start desktop backdrop capture.", error);
+        
       });
 
     return () => {
