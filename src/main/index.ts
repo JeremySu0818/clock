@@ -184,7 +184,7 @@ function createClockWindow(): BrowserWindow {
     maximizable: false,
     minimizable: false,
     fullscreenable: false,
-    skipTaskbar: false,
+    skipTaskbar: true,
     alwaysOnTop: true,
     show: true,
     webPreferences: {
