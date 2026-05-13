@@ -10,7 +10,7 @@ const DEFAULT_LIQUID_GLASS_CONFIG = Object.freeze({
   blur: 0,
   refractiveIndex: 1.5,
   surface: "convexSquircle",
-  specularOpacity: 0.6
+  specularOpacity: 1
 } satisfies LiquidGlassConfig);
 
 type LiquidGlassContextValue = {
