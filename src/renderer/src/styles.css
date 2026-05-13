@@ -109,7 +109,6 @@ body {
   letter-spacing: -0.06em;
   color: transparent;
   -webkit-text-fill-color: rgb(255 255 255 / 0.035);
-  -webkit-text-stroke: 1.35px rgb(255 255 255 / 0.58);
   text-shadow:
     0 0 1px rgb(255 255 255 / 0.66),
     0 14px 32px rgb(255 255 255 / 0.16);
@@ -117,12 +116,17 @@ body {
 
 .liquid-glass-surface.is-capture-ready .clock-time {
   -webkit-text-fill-color: rgb(255 255 255 / 0.12);
-  -webkit-text-stroke: 1.45px rgb(255 255 255 / 0.74);
+}
+
+.liquid-glass-surface.is-capture-ready.is-text-contrast-dark .clock-time {
+  -webkit-text-fill-color: rgb(28 31 35 / 0.18);
+  text-shadow:
+    0 0 1px rgb(255 255 255 / 0.2),
+    0 14px 32px rgb(0 0 0 / 0.1);
 }
 
 .liquid-glass-surface.is-capture-fallback .clock-time {
   -webkit-text-fill-color: rgb(255 255 255 / 0.22);
-  -webkit-text-stroke: 1.55px rgb(255 255 255 / 0.85);
   text-shadow:
     0 0 1px rgb(255 255 255 / 0.9),
     0 18px 40px rgb(0 0 0 / 0.18);
@@ -146,4 +150,8 @@ body {
 
 .liquid-glass-surface.is-capture-ready .clock-date {
   color: rgb(255 255 255 / 0.6);
+}
+
+.liquid-glass-surface.is-capture-ready.is-text-contrast-dark .clock-date {
+  color: rgb(28 31 35 / 0.18);
 }

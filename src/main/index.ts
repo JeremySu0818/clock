@@ -10,14 +10,17 @@ import {
 } from 'electron';
 import { join } from 'node:path';
 
-const CLOCK_WINDOW_WIDTH = 540;
-const CLOCK_WINDOW_HEIGHT = 220;
-const WINDOW_MARGIN = 28;
+const CLOCK_WINDOW_WIDTH = 360;
+const CLOCK_WINDOW_HEIGHT = 147;
+const WINDOW_MARGIN = 20;
 const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
 const GET_WINDOW_METRICS_CHANNEL = 'desktop-glass:get-window-metrics';
 
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('enable-gpu-compositing');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('disable-software-rasterizer');
 app.commandLine.appendSwitch('disable-renderer-backgrounding');
 app.commandLine.appendSwitch('disable-background-timer-throttling');
 app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
@@ -61,10 +64,11 @@ function getVisibleWindowBounds(
 }
 
 function resetWindowToVisibleArea(window: BrowserWindow): void {
+  const currentBounds = window.getBounds();
   window.setBounds(
     getVisibleWindowBounds({
-      x: window.getBounds().x,
-      y: window.getBounds().y,
+      x: currentBounds.x,
+      y: currentBounds.y,
       width: CLOCK_WINDOW_WIDTH,
       height: CLOCK_WINDOW_HEIGHT,
     }),
@@ -201,55 +205,28 @@ function createClockWindow(): BrowserWindow {
   clockWindow.setMenuBarVisibility(false);
   clockWindow.setContentProtection(true);
 
+  let metricsThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+  const throttledPublishMetrics = (): void => {
+    if (metricsThrottleTimer !== null) {
+      return;
+    }
+    metricsThrottleTimer = setTimeout(() => {
+      metricsThrottleTimer = null;
+      publishDesktopGlassMetrics(clockWindow);
+    }, 4);
+  };
+
   clockWindow.once('ready-to-show', () => {
     revealClockWindow(clockWindow);
   });
 
-  clockWindow.on('move', () => {
-    publishDesktopGlassMetrics(clockWindow);
-  });
-
-  clockWindow.on('resize', () => {
-    publishDesktopGlassMetrics(clockWindow);
-  });
+  clockWindow.on('move', throttledPublishMetrics);
+  clockWindow.on('resize', throttledPublishMetrics);
 
   clockWindow.webContents.on('did-finish-load', () => {
     revealClockWindow(clockWindow);
     publishDesktopGlassMetrics(clockWindow);
-
-    setTimeout(() => {
-      void clockWindow.webContents
-        .executeJavaScript(
-          `
-          ({
-            bodyBackground: getComputedStyle(document.body).backgroundColor,
-            captureState: document.querySelector('.liquid-glass-surface')?.getAttribute('data-capture-state'),
-            clockTime: document.querySelector('.clock-time')?.textContent ?? null,
-            desktopGlassType: typeof window.desktopGlass,
-            rootHtmlLength: document.getElementById('root')?.innerHTML.length ?? 0
-          })
-        `,
-        )
-        .then((snapshot) => {})
-        .catch((error) => {});
-    }, 800);
   });
-
-  clockWindow.webContents.on(
-    'console-message',
-    (_event, level, message, line, sourceId) => {},
-  );
-
-  clockWindow.webContents.on(
-    'did-fail-load',
-    (_event, code, description, validatedUrl) => {},
-  );
-
-  clockWindow.webContents.on('render-process-gone', (_event, details) => {});
-
-  setTimeout(() => {
-    revealClockWindow(clockWindow);
-  }, 1200);
 
   const rendererUrl = process.env.ELECTRON_RENDERER_URL;
   if (rendererUrl) {

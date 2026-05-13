@@ -1,9 +1,9 @@
+import { memo, type ReactElement } from "react";
 import { LiquidGlassProvider } from "./glass/LiquidGlassProvider";
 import { LiquidGlassSurface } from "./glass/LiquidGlassSurface";
 import { useClock } from "./hooks/useClock";
-import type { ReactElement } from "react";
 
-function ClockFace(): ReactElement {
+const ClockFace = memo(function ClockFace(): ReactElement {
   const { time, date } = useClock();
 
   return (
@@ -16,7 +16,7 @@ function ClockFace(): ReactElement {
       </div>
     </div>
   );
-}
+});
 
 export default function App(): ReactElement {
   return (
