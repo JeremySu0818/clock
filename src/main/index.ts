@@ -11,7 +11,7 @@ import {
 import { join } from 'node:path';
 
 const CLOCK_WINDOW_WIDTH = 360;
-const CLOCK_WINDOW_HEIGHT = 147;
+const CLOCK_WINDOW_HEIGHT = 150;
 const WINDOW_MARGIN = 20;
 const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
 const GET_WINDOW_METRICS_CHANNEL = 'desktop-glass:get-window-metrics';

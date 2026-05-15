@@ -8,7 +8,7 @@ const ClockFace = memo(function ClockFace(): ReactElement {
 
   return (
     <div className="clock-face" aria-label={`Current time ${time}`}>
-      <div className="clock-time" aria-hidden="true">
+      <div className="clock-time" aria-hidden="true" data-contrast-sample>
         {time}
       </div>
       <div className="clock-date" aria-hidden="true">
