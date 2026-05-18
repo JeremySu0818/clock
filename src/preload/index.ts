@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
+import type { SupportedLocale } from "../shared/i18n";
 
 const WINDOW_METRICS_CHANNEL = "desktop-glass:window-metrics";
 const GET_WINDOW_METRICS_CHANNEL = "desktop-glass:get-window-metrics";
@@ -37,6 +38,7 @@ type TextContrastTone = "light" | "dark";
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  language: SupportedLocale;
   textContrastTone: TextContrastTone;
 };
 

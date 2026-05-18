@@ -8,6 +8,11 @@ import {
   type ReactElement,
   type ReactNode
 } from "react";
+import {
+  DEFAULT_LANGUAGE,
+  LOCALE_DIRECTIONS,
+  type SupportedLocale
+} from "../../../shared/i18n";
 
 export type GlassAppearance = "liquid" | "frosted";
 export type TextContrastTone = "light" | "dark";
@@ -15,18 +20,21 @@ export type TextContrastTone = "light" | "dark";
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  language: SupportedLocale;
   textContrastTone: TextContrastTone;
 };
 
 type ClockSettingsContextValue = ClockSettings & {
   setAutoTextContrast: (enabled: boolean) => void;
   setAppearance: (appearance: GlassAppearance) => void;
+  setLanguage: (language: SupportedLocale) => void;
   setTextContrastTone: (tone: TextContrastTone) => void;
 };
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
   appearance: "liquid",
+  language: DEFAULT_LANGUAGE,
   textContrastTone: "light"
 };
 
@@ -67,6 +75,11 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
     };
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = settings.language;
+    document.documentElement.dir = LOCALE_DIRECTIONS[settings.language];
+  }, [settings.language]);
+
   const setAutoTextContrast = useCallback((enabled: boolean): void => {
     setSettings((currentSettings) => ({
       ...currentSettings,
@@ -81,6 +94,14 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
       appearance
     }));
     void window.clockSettings?.setSettings({ appearance }).catch(() => {});
+  }, []);
+
+  const setLanguage = useCallback((language: SupportedLocale): void => {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      language
+    }));
+    void window.clockSettings?.setSettings({ language }).catch(() => {});
   }, []);
 
   const setTextContrastTone = useCallback((textContrastTone: TextContrastTone): void => {
@@ -102,9 +123,10 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
       ...settings,
       setAutoTextContrast,
       setAppearance,
+      setLanguage,
       setTextContrastTone
     }),
-    [setAppearance, setAutoTextContrast, setTextContrastTone, settings]
+    [setAppearance, setAutoTextContrast, setLanguage, setTextContrastTone, settings]
   );
 
   return <ClockSettingsContext.Provider value={value}>{children}</ClockSettingsContext.Provider>;

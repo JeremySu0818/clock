@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
+import type { SupportedLocale } from "../../shared/i18n";
+
 type DesktopGlassMetrics = {
   captureExcludesSelf: boolean;
   display: {
@@ -26,22 +28,27 @@ type TextContrastTone = "light" | "dark";
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  language: SupportedLocale;
   textContrastTone: TextContrastTone;
 };
 
-interface Window {
-  electron: unknown;
-  desktopGlass: {
-    getWindowMetrics: () => Promise<DesktopGlassMetrics>;
-    onWindowMetrics: (listener: (metrics: DesktopGlassMetrics) => void) => () => void;
-  };
-  clockSettings?: {
-    closeSettings: () => void;
-    getSettings: () => Promise<ClockSettings>;
-    getSettingsVisible: () => Promise<boolean>;
-    onSettingsChanged: (listener: (settings: ClockSettings) => void) => () => void;
-    onSettingsVisibilityChanged: (listener: (visible: boolean) => void) => () => void;
-    setSettings: (settings: Partial<ClockSettings>) => Promise<ClockSettings>;
-    toggleSettings: () => void;
-  };
+declare global {
+  interface Window {
+    electron: unknown;
+    desktopGlass: {
+      getWindowMetrics: () => Promise<DesktopGlassMetrics>;
+      onWindowMetrics: (listener: (metrics: DesktopGlassMetrics) => void) => () => void;
+    };
+    clockSettings?: {
+      closeSettings: () => void;
+      getSettings: () => Promise<ClockSettings>;
+      getSettingsVisible: () => Promise<boolean>;
+      onSettingsChanged: (listener: (settings: ClockSettings) => void) => () => void;
+      onSettingsVisibilityChanged: (listener: (visible: boolean) => void) => () => void;
+      setSettings: (settings: Partial<ClockSettings>) => Promise<ClockSettings>;
+      toggleSettings: () => void;
+    };
+  }
 }
+
+export {};

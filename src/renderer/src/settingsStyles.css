@@ -137,6 +137,7 @@ input {
   min-width: 0;
   display: grid;
   align-content: center;
+  gap: 14px;
   padding-left: 14px;
   -webkit-app-region: no-drag;
 }
@@ -215,7 +216,7 @@ input {
 
 .settings-menu {
   position: relative;
-  width: 136px;
+  width: 152px;
   -webkit-app-region: no-drag;
 }
 
@@ -249,7 +250,7 @@ input {
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  max-height: min(132px, calc(100vh - 120px));
+  max-height: min(156px, calc(100vh - 96px));
   display: grid;
   gap: 6px;
   overflow-x: hidden;

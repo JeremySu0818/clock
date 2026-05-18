@@ -10,11 +10,16 @@ import {
 } from 'electron';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import {
+  DEFAULT_LANGUAGE,
+  isSupportedLocale,
+  type SupportedLocale,
+} from '../shared/i18n';
 
 const CLOCK_WINDOW_WIDTH = 360;
 const CLOCK_WINDOW_HEIGHT = 150;
 const SETTINGS_WINDOW_WIDTH = 360;
-const SETTINGS_WINDOW_HEIGHT = 150;
+const SETTINGS_WINDOW_HEIGHT = 360;
 const SETTINGS_WINDOW_GAP = 8;
 const WINDOW_MARGIN = 20;
 const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
@@ -62,12 +67,14 @@ type TextContrastTone = 'light' | 'dark';
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  language: SupportedLocale;
   textContrastTone: TextContrastTone;
 };
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
   appearance: 'liquid',
+  language: DEFAULT_LANGUAGE,
   textContrastTone: 'light',
 };
 
@@ -101,6 +108,9 @@ function readClockSettings(
     appearance: isGlassAppearance(candidate.appearance)
       ? candidate.appearance
       : fallback.appearance,
+    language: isSupportedLocale(candidate.language)
+      ? candidate.language
+      : fallback.language,
     textContrastTone: isTextContrastTone(candidate.textContrastTone)
       ? candidate.textContrastTone
       : fallback.textContrastTone,

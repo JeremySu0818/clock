@@ -3,9 +3,11 @@ import { useClockSettings } from "./ClockSettingsProvider";
 import { FrostedGlassProvider } from "../glass/FrostedGlassProvider";
 import { LiquidGlassProvider } from "../glass/LiquidGlassProvider";
 import { LiquidGlassSurface } from "../glass/LiquidGlassSurface";
+import { useTranslation } from "../i18n/useTranslation";
 
 export function SettingsButton(): ReactElement {
   const { appearance } = useClockSettings();
+  const t = useTranslation();
   const [settingsVisible, setSettingsVisible] = useState(false);
 
   const GlassProvider = appearance === "frosted" ? FrostedGlassProvider : LiquidGlassProvider;
@@ -55,7 +57,7 @@ export function SettingsButton(): ReactElement {
     <button
       type="button"
       className="settings-button"
-      aria-label={"\u958B\u555F\u8A2D\u5B9A"}
+      aria-label={t.settings.settingsButtonLabel}
       aria-pressed={settingsVisible}
       onClick={handleClick}
     >
