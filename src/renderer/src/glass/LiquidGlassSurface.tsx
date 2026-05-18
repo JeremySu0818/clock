@@ -7,11 +7,13 @@ import {
   type CSSProperties,
   type ReactElement
 } from "react";
+import { useScreenCapture } from "./ScreenCaptureProvider";
 import { useLiquidGlassSurface } from "./useLiquidGlassSurface";
 
-type LiquidGlassSurfaceProps = ComponentPropsWithoutRef<"section">;
+type LiquidGlassSurfaceProps = ComponentPropsWithoutRef<"section"> & {
+  autoTextContrast?: boolean;
+};
 
-type DesktopGlassMetrics = Awaited<ReturnType<NonNullable<typeof window.desktopGlass>["getWindowMetrics"]>>;
 type TextContrastTone = "light" | "dark";
 type Bounds = { left: number; top: number; width: number; height: number };
 
@@ -61,19 +63,8 @@ function getBackdropContrastTone(
   return luminance > DARK_TEXT_LUMINANCE_THRESHOLD ? "dark" : "light";
 }
 
-async function startDisplayCapture(): Promise<MediaStream> {
-  return navigator.mediaDevices.getDisplayMedia({
-    video: {
-      frameRate: {
-        ideal: 60,
-        max: 60
-      }
-    },
-    audio: false
-  });
-}
-
 export function LiquidGlassSurface({
+  autoTextContrast = true,
   children,
   className,
   style,
@@ -85,101 +76,52 @@ export function LiquidGlassSurface({
   const frameRef = useRef<number | null>(null);
   const contrastFrameRef = useRef(0);
   const textContrastToneRef = useRef<TextContrastTone>("light");
-  const streamRef = useRef<MediaStream | null>(null);
-  const metricsRef = useRef<DesktopGlassMetrics | null>(null);
   const boundsRef = useRef<Bounds>({ left: 0, top: 0, width: 0, height: 0 });
   const sampleBoundsRef = useRef<Bounds | null>(null);
 
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [textContrastTone, setTextContrastTone] = useState<TextContrastTone>("light");
-  const desktopGlass = window.desktopGlass;
+
+  const { stream, metricsRef } = useScreenCapture();
 
   const mergedStyle: CSSProperties = {
     ...style
   };
 
   useEffect(() => {
-    let active = true;
+    if (autoTextContrast) {
+      return;
+    }
 
-    if (!desktopGlass) {
-      setCaptureError("desktopGlass bridge is unavailable.");
+    textContrastToneRef.current = "light";
+    setTextContrastTone("light");
+  }, [autoTextContrast]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !stream) {
       setIsCaptureReady(false);
+      setCaptureError(stream === null ? "No capture stream available." : null);
       return undefined;
     }
 
-    void desktopGlass.getWindowMetrics().then((initialMetrics) => {
-      if (active) {
-        metricsRef.current = initialMetrics;
-      }
-    });
-
-    let captureVersion = 0;
-
-    const unsubscribe = desktopGlass.onWindowMetrics((nextMetrics) => {
-      const prev = metricsRef.current;
-      metricsRef.current = nextMetrics;
-
-      if (prev && prev.display.id !== nextMetrics.display.id) {
-        captureVersion += 1;
-        restartCapture();
-      }
-    });
-
-    const stopStream = (): void => {
-      for (const track of streamRef.current?.getTracks() ?? []) {
-        track.stop();
-      }
-
-      streamRef.current = null;
-
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-      }
-
+    video.srcObject = stream;
+    void video.play().then(() => {
+      setCaptureError(null);
+      setIsCaptureReady(true);
+    }).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Video play failed";
+      setCaptureError(message);
       setIsCaptureReady(false);
-    };
-
-    const restartCapture = (): void => {
-      const localVersion = captureVersion;
-      stopStream();
-
-      void startDisplayCapture()
-        .then((stream) => {
-          if (!active || localVersion !== captureVersion) {
-            for (const track of stream.getTracks()) {
-              track.stop();
-            }
-            return;
-          }
-
-          streamRef.current = stream;
-
-          const video = videoRef.current;
-          if (video) {
-            video.srcObject = stream;
-            void video.play().then(() => {
-              setCaptureError(null);
-              setIsCaptureReady(true);
-            });
-          }
-        })
-        .catch((error: unknown) => {
-          const message = error instanceof Error ? error.message : "Unknown capture error";
-          setCaptureError(message);
-          setIsCaptureReady(false);
-        });
-    };
-
-    restartCapture();
+    });
 
     return () => {
-      active = false;
-      unsubscribe();
-      stopStream();
+      video.pause();
+      video.srcObject = null;
+      setIsCaptureReady(false);
     };
-  }, [desktopGlass]);
+  }, [stream]);
 
   useLayoutEffect(() => {
     const surface = ref.current;
@@ -267,7 +209,7 @@ export function LiquidGlassSurface({
       }
 
       contrastFrameRef.current += 1;
-      if (contrastFrameRef.current >= CONTRAST_SAMPLE_INTERVAL) {
+      if (autoTextContrast && contrastFrameRef.current >= CONTRAST_SAMPLE_INTERVAL) {
         contrastFrameRef.current = 0;
         updateBounds();
 
@@ -334,7 +276,7 @@ export function LiquidGlassSurface({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [ref]);
+  }, [autoTextContrast, metricsRef, ref]);
 
   return (
     <section

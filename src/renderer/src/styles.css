@@ -19,6 +19,12 @@ body {
   user-select: none;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
 .clock-shell {
   box-sizing: border-box;
   width: 100vw;
@@ -110,6 +116,55 @@ body {
   pointer-events: none;
   padding: 24px;
   box-sizing: border-box;
+}
+
+.settings-button {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.clock-shell:hover .settings-button,
+.settings-button:focus-visible,
+.settings-button[aria-pressed="true"] {
+  opacity: 1;
+}
+
+.settings-button-glass {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  display: grid;
+  place-items: center;
+  contain: paint;
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  color: rgb(255 255 255 / 0.85);
+  transition: color 0.3s ease;
+}
+
+.settings-button-glass.is-text-contrast-dark {
+  color: rgb(20 20 20 / 0.76);
+}
+
+.settings-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.settings-button:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.85);
+  outline-offset: 2px;
 }
 
 .clock-time {

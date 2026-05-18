@@ -20,10 +20,26 @@ type DesktopGlassMetrics = {
   };
 };
 
+type GlassAppearance = "liquid" | "frosted";
+
+type ClockSettings = {
+  autoTextContrast: boolean;
+  appearance: GlassAppearance;
+};
+
 interface Window {
   electron: unknown;
   desktopGlass: {
     getWindowMetrics: () => Promise<DesktopGlassMetrics>;
     onWindowMetrics: (listener: (metrics: DesktopGlassMetrics) => void) => () => void;
+  };
+  clockSettings?: {
+    closeSettings: () => void;
+    getSettings: () => Promise<ClockSettings>;
+    getSettingsVisible: () => Promise<boolean>;
+    onSettingsChanged: (listener: (settings: ClockSettings) => void) => () => void;
+    onSettingsVisibilityChanged: (listener: (visible: boolean) => void) => () => void;
+    setSettings: (settings: Partial<ClockSettings>) => Promise<ClockSettings>;
+    toggleSettings: () => void;
   };
 }

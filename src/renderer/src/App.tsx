@@ -1,7 +1,10 @@
 import { memo, type ReactElement } from "react";
-import { LiquidGlassProvider } from "./glass/LiquidGlassProvider";
 import { LiquidGlassSurface } from "./glass/LiquidGlassSurface";
+import { GlassModeProvider } from "./glass/GlassModeProvider";
+import { ScreenCaptureProvider } from "./glass/ScreenCaptureProvider";
 import { useClock } from "./hooks/useClock";
+import { ClockSettingsProvider, useClockSettings } from "./settings/ClockSettingsProvider";
+import { SettingsButton } from "./settings/SettingsButton";
 
 const ClockFace = memo(function ClockFace(): ReactElement {
   const { time, date } = useClock();
@@ -18,14 +21,28 @@ const ClockFace = memo(function ClockFace(): ReactElement {
   );
 });
 
-export default function App(): ReactElement {
+
+function ClockApp(): ReactElement {
+  const { autoTextContrast } = useClockSettings();
+
   return (
-    <LiquidGlassProvider>
+    <GlassModeProvider>
       <main className="clock-shell">
-        <LiquidGlassSurface className="clock-glass">
+        <LiquidGlassSurface className="clock-glass" autoTextContrast={autoTextContrast}>
           <ClockFace />
         </LiquidGlassSurface>
+        <SettingsButton />
       </main>
-    </LiquidGlassProvider>
+    </GlassModeProvider>
+  );
+}
+
+export default function App(): ReactElement {
+  return (
+    <ClockSettingsProvider>
+      <ScreenCaptureProvider>
+        <ClockApp />
+      </ScreenCaptureProvider>
+    </ClockSettingsProvider>
   );
 }

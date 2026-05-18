@@ -1,9 +1,9 @@
 import { createContext, useContext, useMemo, type ReactElement, type ReactNode } from "react";
 import type { LiquidGlassOptions } from "solid-glass/engines/svg-refraction";
 
-type LiquidGlassConfig = Omit<LiquidGlassOptions, "width" | "height">;
+export type LiquidGlassConfig = Omit<LiquidGlassOptions, "width" | "height">;
 
-const DEFAULT_LIQUID_GLASS_CONFIG = Object.freeze({
+export const DEFAULT_LIQUID_GLASS_CONFIG = Object.freeze({
   radius: 60,
   bezelWidth: 20,
   glassThickness: 300,

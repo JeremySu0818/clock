@@ -8,13 +8,25 @@ import {
   screen,
   session,
 } from 'electron';
-import { join } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 const CLOCK_WINDOW_WIDTH = 360;
 const CLOCK_WINDOW_HEIGHT = 150;
+const SETTINGS_WINDOW_WIDTH = 380;
+const SETTINGS_WINDOW_HEIGHT = 200;
+const SETTINGS_WINDOW_GAP = 8;
 const WINDOW_MARGIN = 20;
 const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
 const GET_WINDOW_METRICS_CHANNEL = 'desktop-glass:get-window-metrics';
+const TOGGLE_SETTINGS_CHANNEL = 'clock:toggle-settings';
+const CLOSE_SETTINGS_CHANNEL = 'clock:close-settings';
+const GET_SETTINGS_CHANNEL = 'clock:get-settings';
+const SET_SETTINGS_CHANNEL = 'clock:set-settings';
+const SETTINGS_CHANGED_CHANNEL = 'clock:settings-changed';
+const GET_SETTINGS_VISIBILITY_CHANNEL = 'clock:get-settings-visibility';
+const SETTINGS_VISIBILITY_CHANGED_CHANNEL =
+  'clock:settings-visibility-changed';
 
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
@@ -45,6 +57,85 @@ type DesktopGlassMetrics = {
   };
 };
 
+type GlassAppearance = 'liquid' | 'frosted';
+
+type ClockSettings = {
+  autoTextContrast: boolean;
+  appearance: GlassAppearance;
+};
+
+const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
+  autoTextContrast: true,
+  appearance: 'liquid',
+};
+
+let clockSettings: ClockSettings = DEFAULT_CLOCK_SETTINGS;
+let clockWindow: BrowserWindow | null = null;
+let settingsWindow: BrowserWindow | null = null;
+
+function isGlassAppearance(value: unknown): value is GlassAppearance {
+  return value === 'liquid' || value === 'frosted';
+}
+
+function readClockSettings(value: unknown, fallback: ClockSettings): ClockSettings {
+  if (!value || typeof value !== 'object') {
+    return fallback;
+  }
+
+  const candidate = value as Partial<ClockSettings>;
+
+  return {
+    autoTextContrast:
+      typeof candidate.autoTextContrast === 'boolean'
+        ? candidate.autoTextContrast
+        : fallback.autoTextContrast,
+    appearance: isGlassAppearance(candidate.appearance)
+      ? candidate.appearance
+      : fallback.appearance,
+  };
+}
+
+function getClockSettingsPath(): string {
+  return join(app.getPath('userData'), 'clock-settings.json');
+}
+
+async function loadClockSettings(): Promise<void> {
+  try {
+    const settingsJson = await readFile(getClockSettingsPath(), 'utf8');
+    clockSettings = readClockSettings(JSON.parse(settingsJson), DEFAULT_CLOCK_SETTINGS);
+  } catch {
+    clockSettings = DEFAULT_CLOCK_SETTINGS;
+  }
+}
+
+async function saveClockSettings(): Promise<void> {
+  const settingsPath = getClockSettingsPath();
+  await mkdir(dirname(settingsPath), { recursive: true });
+  await writeFile(settingsPath, JSON.stringify(clockSettings, null, 2), 'utf8');
+}
+
+function publishClockSettings(): void {
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) {
+      window.webContents.send(SETTINGS_CHANGED_CHANNEL, clockSettings);
+    }
+  }
+}
+
+function isSettingsVisible(): boolean {
+  return Boolean(settingsWindow && !settingsWindow.isDestroyed());
+}
+
+function publishSettingsVisibility(): void {
+  const visible = isSettingsVisible();
+
+  for (const window of BrowserWindow.getAllWindows()) {
+    if (!window.isDestroyed()) {
+      window.webContents.send(SETTINGS_VISIBILITY_CHANGED_CHANNEL, visible);
+    }
+  }
+}
+
 function getVisibleWindowBounds(
   bounds: Electron.Rectangle,
 ): Electron.Rectangle {
@@ -65,6 +156,7 @@ function getVisibleWindowBounds(
 
 function resetWindowToVisibleArea(window: BrowserWindow): void {
   const currentBounds = window.getBounds();
+
   window.setBounds(
     getVisibleWindowBounds({
       x: currentBounds.x,
@@ -87,6 +179,29 @@ function revealClockWindow(window: BrowserWindow): void {
   }
 
   window.moveTop();
+}
+
+function positionSettingsWindow(): void {
+  if (!clockWindow || clockWindow.isDestroyed()) {
+    return;
+  }
+
+  if (!settingsWindow || settingsWindow.isDestroyed()) {
+    return;
+  }
+
+  const parentBounds = clockWindow.getBounds();
+  settingsWindow.setBounds(
+    getVisibleWindowBounds({
+      width: SETTINGS_WINDOW_WIDTH,
+      height: SETTINGS_WINDOW_HEIGHT,
+      x: Math.round(
+        parentBounds.x + (parentBounds.width - SETTINGS_WINDOW_WIDTH) / 2,
+      ),
+      y: Math.round(parentBounds.y + parentBounds.height + SETTINGS_WINDOW_GAP),
+    }),
+  );
+  publishDesktopGlassMetrics(settingsWindow);
 }
 
 function getDesktopGlassMetrics(window: BrowserWindow): DesktopGlassMetrics {
@@ -173,7 +288,7 @@ function createClockWindow(): BrowserWindow {
     y: Math.round(workArea.y + WINDOW_MARGIN),
   });
 
-  const clockWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: initialBounds.width,
     height: initialBounds.height,
     x: initialBounds.x,
@@ -200,10 +315,10 @@ function createClockWindow(): BrowserWindow {
     },
   });
 
-  clockWindow.setAlwaysOnTop(true, 'screen-saver');
-  clockWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  clockWindow.setMenuBarVisibility(false);
-  clockWindow.setContentProtection(true);
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  win.setMenuBarVisibility(false);
+  win.setContentProtection(true);
 
   let metricsThrottleTimer: ReturnType<typeof setTimeout> | null = null;
   const throttledPublishMetrics = (): void => {
@@ -212,34 +327,136 @@ function createClockWindow(): BrowserWindow {
     }
     metricsThrottleTimer = setTimeout(() => {
       metricsThrottleTimer = null;
-      publishDesktopGlassMetrics(clockWindow);
+      publishDesktopGlassMetrics(win);
+      positionSettingsWindow();
     }, 4);
   };
 
-  clockWindow.once('ready-to-show', () => {
-    revealClockWindow(clockWindow);
+  win.once('ready-to-show', () => {
+    revealClockWindow(win);
   });
 
-  clockWindow.on('move', throttledPublishMetrics);
-  clockWindow.on('resize', throttledPublishMetrics);
+  win.on('move', throttledPublishMetrics);
+  win.on('resize', throttledPublishMetrics);
 
-  clockWindow.webContents.on('did-finish-load', () => {
-    revealClockWindow(clockWindow);
-    publishDesktopGlassMetrics(clockWindow);
+  win.webContents.on('did-finish-load', () => {
+    revealClockWindow(win);
+    publishDesktopGlassMetrics(win);
+    publishClockSettings();
+    publishSettingsVisibility();
+  });
+
+  win.on('closed', () => {
+    clockWindow = null;
+
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+      settingsWindow.close();
+    }
   });
 
   const rendererUrl = process.env.ELECTRON_RENDERER_URL;
   if (rendererUrl) {
-    void clockWindow.loadURL(rendererUrl);
+    void win.loadURL(rendererUrl);
   } else {
-    void clockWindow.loadFile(join(__dirname, '../renderer/index.html'));
+    void win.loadFile(join(__dirname, '../renderer/index.html'));
   }
 
-  return clockWindow;
+  clockWindow = win;
+
+  return win;
+}
+
+function createSettingsWindow(): BrowserWindow | null {
+  if (!clockWindow || clockWindow.isDestroyed()) {
+    return null;
+  }
+
+  const parentBounds = clockWindow.getBounds();
+  const initialBounds = getVisibleWindowBounds({
+    width: SETTINGS_WINDOW_WIDTH,
+    height: SETTINGS_WINDOW_HEIGHT,
+    x: Math.round(
+      parentBounds.x + (parentBounds.width - SETTINGS_WINDOW_WIDTH) / 2,
+    ),
+    y: Math.round(parentBounds.y + parentBounds.height + SETTINGS_WINDOW_GAP),
+  });
+
+  const win = new BrowserWindow({
+    width: initialBounds.width,
+    height: initialBounds.height,
+    x: initialBounds.x,
+    y: initialBounds.y,
+    transparent: true,
+    backgroundColor: '#00000000',
+    frame: false,
+    titleBarStyle: 'hidden',
+    autoHideMenuBar: true,
+    hasShadow: false,
+    resizable: false,
+    maximizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    show: true,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.mjs'),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+
+  win.setAlwaysOnTop(true, 'screen-saver');
+  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  win.setMenuBarVisibility(false);
+  win.setContentProtection(true);
+
+  let metricsThrottleTimer: ReturnType<typeof setTimeout> | null = null;
+  const throttledPublishMetrics = (): void => {
+    if (metricsThrottleTimer !== null) {
+      return;
+    }
+    metricsThrottleTimer = setTimeout(() => {
+      metricsThrottleTimer = null;
+      publishDesktopGlassMetrics(win);
+    }, 4);
+  };
+
+  win.once('ready-to-show', () => {
+    positionSettingsWindow();
+  });
+
+  win.on('move', throttledPublishMetrics);
+  win.on('resize', throttledPublishMetrics);
+
+  win.webContents.on('did-finish-load', () => {
+    positionSettingsWindow();
+    publishClockSettings();
+  });
+
+  win.on('closed', () => {
+    settingsWindow = null;
+    publishSettingsVisibility();
+  });
+
+  const rendererUrl = process.env.ELECTRON_RENDERER_URL;
+  if (rendererUrl) {
+    void win.loadURL(`${rendererUrl}/settings.html`);
+  } else {
+    void win.loadFile(join(__dirname, '../renderer/settings.html'));
+  }
+
+  settingsWindow = win;
+  publishSettingsVisibility();
+
+  return win;
 }
 
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
+  await loadClockSettings();
   await registerDisplayCaptureHandler();
 
   ipcMain.handle(GET_WINDOW_METRICS_CHANNEL, (event) => {
@@ -252,28 +469,58 @@ app.whenReady().then(async () => {
     return getDesktopGlassMetrics(window);
   });
 
+  ipcMain.handle(GET_SETTINGS_CHANNEL, () => clockSettings);
+
+  ipcMain.handle(SET_SETTINGS_CHANNEL, async (_event, nextSettings: unknown) => {
+    clockSettings = readClockSettings(nextSettings, clockSettings);
+    await saveClockSettings();
+    publishClockSettings();
+    return clockSettings;
+  });
+
+  ipcMain.handle(GET_SETTINGS_VISIBILITY_CHANNEL, () => isSettingsVisible());
+
   createClockWindow();
 
-  globalShortcut.register('CommandOrControl+Alt+Space', () => {
-    const window = BrowserWindow.getAllWindows()[0];
+  ipcMain.on(TOGGLE_SETTINGS_CHANNEL, (event) => {
+    const senderWindow = BrowserWindow.fromWebContents(event.sender);
 
-    if (!window) {
+    if (senderWindow === clockWindow) {
+      if (settingsWindow && !settingsWindow.isDestroyed()) {
+        settingsWindow.close();
+      } else {
+        createSettingsWindow();
+      }
+    }
+  });
+
+  ipcMain.on(CLOSE_SETTINGS_CHANNEL, () => {
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+      settingsWindow.close();
+    }
+  });
+
+  globalShortcut.register('CommandOrControl+Alt+Space', () => {
+    if (!clockWindow || clockWindow.isDestroyed()) {
       return;
     }
 
-    revealClockWindow(window);
-    window.focus();
+    revealClockWindow(clockWindow);
+    clockWindow.focus();
+    positionSettingsWindow();
   });
 
   screen.on('display-metrics-changed', () => {
-    for (const window of BrowserWindow.getAllWindows()) {
-      resetWindowToVisibleArea(window);
-      publishDesktopGlassMetrics(window);
+    if (clockWindow && !clockWindow.isDestroyed()) {
+      resetWindowToVisibleArea(clockWindow);
+      publishDesktopGlassMetrics(clockWindow);
     }
+
+    positionSettingsWindow();
   });
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    if (!clockWindow || clockWindow.isDestroyed()) {
       createClockWindow();
     }
   });
@@ -285,15 +532,14 @@ if (!gotSingleInstanceLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    const window = BrowserWindow.getAllWindows()[0];
-
-    if (!window) {
+    if (!clockWindow || clockWindow.isDestroyed()) {
       return;
     }
 
-    resetWindowToVisibleArea(window);
-    revealClockWindow(window);
-    window.focus();
+    resetWindowToVisibleArea(clockWindow);
+    revealClockWindow(clockWindow);
+    clockWindow.focus();
+    positionSettingsWindow();
   });
 }
 
