@@ -28,16 +28,25 @@ body,
   clip-path: inset(0 round 60px);
 }
 
+.settings-glass.is-text-contrast-light {
+  --settings-text-color: rgb(255 255 255 / 0.6);
+  --settings-switch-thumb-color: rgb(255 255 255 / 0.6);
+}
+
+.settings-glass.is-text-contrast-dark {
+  --settings-text-color: rgb(0 0 0 / 0.45);
+  --settings-switch-thumb-color: rgb(0 0 0 / 0.45);
+}
+
 body {
   user-select: none;
   font-family: 'Bahnschrift', 'Segoe UI Variable Text', sans-serif;
   font-size: 13px;
-  color: rgb(230 230 230);
+  color: var(--settings-text-color, rgb(255 255 255 / 0.6));
 }
 
 button,
-input,
-select {
+input {
   font: inherit;
 }
 
@@ -63,20 +72,30 @@ select {
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 8px;
-  color: rgb(230 230 230 / 0.78);
+  border-radius: 5px;
+  color: var(--settings-text-color, rgb(255 255 255 / 0.6));
   background: transparent;
   cursor: pointer;
   -webkit-app-region: no-drag;
-  transition: background 0.15s ease, color 0.15s ease;
+  opacity: 0.78;
+  transition: color 0.15s ease;
 }
 
 .settings-close:hover {
-  color: rgb(255 255 255);
-  background: rgb(255 255 255 / 0.08);
+  opacity: 1;
+}
+
+.settings-close-glass {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
 }
 
 .settings-close svg {
+  position: relative;
+  z-index: 1;
   width: 16px;
   height: 16px;
   fill: none;
@@ -94,27 +113,24 @@ select {
 }
 
 .settings-tab {
+  max-width: 80px;
   min-height: 34px;
   padding: 0 12px;
   border: 0;
-  border-radius: 8px;
-  color: rgb(200 200 200 / 0.7);
+  color: var(--settings-text-color, rgb(255 255 255 / 0.6));
   background: transparent;
   text-align: left;
   font-family: 'Bahnschrift', 'Segoe UI Variable Text', sans-serif;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
 }
 
-.settings-tab:hover {
-  background: rgb(255 255 255 / 0.06);
-}
-
-.settings-tab[data-active="true"] {
-  color: rgb(255 255 255);
-  background: rgb(255 255 255 / 0.1);
+.settings-tab:hover,
+.settings-tab[data-active='true'] {
+  opacity: 1;
 }
 
 .settings-content {
@@ -144,56 +160,129 @@ select {
   font-size: 13px;
   font-weight: 700;
   line-height: 1.25;
-  color: rgb(230 230 230 / 0.9);
+  color: var(--settings-text-color, rgb(255 255 255 / 0.6));
+}
+
+.settings-control-glass.is-capture-ready,
+.settings-control-glass.is-capture-fallback {
+  background: transparent;
+  box-shadow: none;
 }
 
 .settings-switch {
-  width: 42px;
-  height: 24px;
-  appearance: none;
+  position: relative;
+  width: 44px;
+  height: 26px;
+  padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.12);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.15);
+  background: transparent;
   cursor: pointer;
-  transition: background 0.16s ease;
+  -webkit-app-region: no-drag;
 }
 
-.settings-switch::before {
-  content: "";
+.settings-switch-track {
+  width: 100%;
+  height: 100%;
   display: block;
-  width: 18px;
-  height: 18px;
-  margin: 3px;
+  border-radius: inherit;
+}
+
+.settings-switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  display: block;
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.85);
-  box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);
+  pointer-events: none;
   transition: transform 0.16s ease-out;
 }
 
-.settings-switch:checked {
-  background: rgb(76 140 255 / 0.65);
+.settings-switch-thumb-tone {
+  position: absolute;
+  inset: 5px;
+  z-index: 1;
+  display: block;
+  border-radius: 50%;
+  background: var(--settings-switch-thumb-color, rgb(0 0 0 / 0.45));
 }
 
-.settings-switch:checked::before {
+.settings-switch[aria-checked='true'] .settings-switch-thumb {
   transform: translateX(18px);
 }
 
-.settings-select {
-  max-width: 132px;
-  min-height: 32px;
+.settings-menu {
+  position: relative;
+  width: 136px;
+  -webkit-app-region: no-drag;
+}
+
+.settings-menu-button,
+.settings-menu-option {
+  width: 100%;
+  padding: 0;
   border: 0;
-  border-radius: 8px;
-  padding: 0 30px 0 10px;
-  color: rgb(230 230 230);
-  background: rgb(255 255 255 / 0.1);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  border-radius: 5px;
+  color: var(--settings-text-color, rgb(255 255 255 / 0.6));
+  background: transparent;
   cursor: pointer;
+}
+
+.settings-menu-button-glass,
+.settings-menu-option-glass {
+  width: 100%;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+
+.settings-menu-popover {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  max-height: min(132px, calc(100vh - 120px));
+  display: grid;
+  gap: 6px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.settings-menu-option[aria-selected='true'] {
+  opacity: 1;
+}
+
+.settings-control-content,
+.settings-menu-chevron {
+  position: relative;
+  z-index: 1;
+}
+
+.settings-control-content {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-menu-chevron {
+  line-height: 1;
 }
 
 .settings-tab:focus-visible,
 .settings-close:focus-visible,
-.settings-select:focus-visible,
+.settings-menu-button:focus-visible,
+.settings-menu-option:focus-visible,
 .settings-switch:focus-visible {
   outline: 2px solid rgb(76 140 255 / 0.7);
   outline-offset: 2px;

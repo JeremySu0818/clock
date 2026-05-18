@@ -13,8 +13,8 @@ import { dirname, join } from 'node:path';
 
 const CLOCK_WINDOW_WIDTH = 360;
 const CLOCK_WINDOW_HEIGHT = 150;
-const SETTINGS_WINDOW_WIDTH = 380;
-const SETTINGS_WINDOW_HEIGHT = 200;
+const SETTINGS_WINDOW_WIDTH = 360;
+const SETTINGS_WINDOW_HEIGHT = 150;
 const SETTINGS_WINDOW_GAP = 8;
 const WINDOW_MARGIN = 20;
 const WINDOW_METRICS_CHANNEL = 'desktop-glass:window-metrics';
@@ -25,8 +25,7 @@ const GET_SETTINGS_CHANNEL = 'clock:get-settings';
 const SET_SETTINGS_CHANNEL = 'clock:set-settings';
 const SETTINGS_CHANGED_CHANNEL = 'clock:settings-changed';
 const GET_SETTINGS_VISIBILITY_CHANNEL = 'clock:get-settings-visibility';
-const SETTINGS_VISIBILITY_CHANGED_CHANNEL =
-  'clock:settings-visibility-changed';
+const SETTINGS_VISIBILITY_CHANGED_CHANNEL = 'clock:settings-visibility-changed';
 
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
@@ -58,15 +57,18 @@ type DesktopGlassMetrics = {
 };
 
 type GlassAppearance = 'liquid' | 'frosted';
+type TextContrastTone = 'light' | 'dark';
 
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  textContrastTone: TextContrastTone;
 };
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
   appearance: 'liquid',
+  textContrastTone: 'light',
 };
 
 let clockSettings: ClockSettings = DEFAULT_CLOCK_SETTINGS;
@@ -77,7 +79,14 @@ function isGlassAppearance(value: unknown): value is GlassAppearance {
   return value === 'liquid' || value === 'frosted';
 }
 
-function readClockSettings(value: unknown, fallback: ClockSettings): ClockSettings {
+function isTextContrastTone(value: unknown): value is TextContrastTone {
+  return value === 'light' || value === 'dark';
+}
+
+function readClockSettings(
+  value: unknown,
+  fallback: ClockSettings,
+): ClockSettings {
   if (!value || typeof value !== 'object') {
     return fallback;
   }
@@ -92,6 +101,9 @@ function readClockSettings(value: unknown, fallback: ClockSettings): ClockSettin
     appearance: isGlassAppearance(candidate.appearance)
       ? candidate.appearance
       : fallback.appearance,
+    textContrastTone: isTextContrastTone(candidate.textContrastTone)
+      ? candidate.textContrastTone
+      : fallback.textContrastTone,
   };
 }
 
@@ -102,7 +114,10 @@ function getClockSettingsPath(): string {
 async function loadClockSettings(): Promise<void> {
   try {
     const settingsJson = await readFile(getClockSettingsPath(), 'utf8');
-    clockSettings = readClockSettings(JSON.parse(settingsJson), DEFAULT_CLOCK_SETTINGS);
+    clockSettings = readClockSettings(
+      JSON.parse(settingsJson),
+      DEFAULT_CLOCK_SETTINGS,
+    );
   } catch {
     clockSettings = DEFAULT_CLOCK_SETTINGS;
   }
@@ -471,12 +486,15 @@ app.whenReady().then(async () => {
 
   ipcMain.handle(GET_SETTINGS_CHANNEL, () => clockSettings);
 
-  ipcMain.handle(SET_SETTINGS_CHANNEL, async (_event, nextSettings: unknown) => {
-    clockSettings = readClockSettings(nextSettings, clockSettings);
-    await saveClockSettings();
-    publishClockSettings();
-    return clockSettings;
-  });
+  ipcMain.handle(
+    SET_SETTINGS_CHANNEL,
+    async (_event, nextSettings: unknown) => {
+      clockSettings = readClockSettings(nextSettings, clockSettings);
+      await saveClockSettings();
+      publishClockSettings();
+      return clockSettings;
+    },
+  );
 
   ipcMain.handle(GET_SETTINGS_VISIBILITY_CHANNEL, () => isSettingsVisible());
 

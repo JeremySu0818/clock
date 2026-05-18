@@ -32,10 +32,12 @@ type DesktopGlassMetrics = {
 };
 
 type GlassAppearance = "liquid" | "frosted";
+type TextContrastTone = "light" | "dark";
 
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  textContrastTone: TextContrastTone;
 };
 
 contextBridge.exposeInMainWorld("electron", electronAPI);

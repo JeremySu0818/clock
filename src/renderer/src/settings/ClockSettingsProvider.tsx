@@ -10,20 +10,24 @@ import {
 } from "react";
 
 export type GlassAppearance = "liquid" | "frosted";
+export type TextContrastTone = "light" | "dark";
 
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
+  textContrastTone: TextContrastTone;
 };
 
 type ClockSettingsContextValue = ClockSettings & {
   setAutoTextContrast: (enabled: boolean) => void;
   setAppearance: (appearance: GlassAppearance) => void;
+  setTextContrastTone: (tone: TextContrastTone) => void;
 };
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
-  appearance: "liquid"
+  appearance: "liquid",
+  textContrastTone: "light"
 };
 
 const ClockSettingsContext = createContext<ClockSettingsContextValue | null>(null);
@@ -79,13 +83,28 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
     void window.clockSettings?.setSettings({ appearance }).catch(() => {});
   }, []);
 
+  const setTextContrastTone = useCallback((textContrastTone: TextContrastTone): void => {
+    setSettings((currentSettings) => {
+      if (currentSettings.textContrastTone === textContrastTone) {
+        return currentSettings;
+      }
+
+      return {
+        ...currentSettings,
+        textContrastTone
+      };
+    });
+    void window.clockSettings?.setSettings({ textContrastTone }).catch(() => {});
+  }, []);
+
   const value = useMemo<ClockSettingsContextValue>(
     () => ({
       ...settings,
       setAutoTextContrast,
-      setAppearance
+      setAppearance,
+      setTextContrastTone
     }),
-    [setAppearance, setAutoTextContrast, settings]
+    [setAppearance, setAutoTextContrast, setTextContrastTone, settings]
   );
 
   return <ClockSettingsContext.Provider value={value}>{children}</ClockSettingsContext.Provider>;

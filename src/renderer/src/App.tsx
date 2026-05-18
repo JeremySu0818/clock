@@ -23,12 +23,21 @@ const ClockFace = memo(function ClockFace(): ReactElement {
 
 
 function ClockApp(): ReactElement {
-  const { autoTextContrast } = useClockSettings();
+  const {
+    autoTextContrast,
+    setTextContrastTone,
+    textContrastTone
+  } = useClockSettings();
 
   return (
     <GlassModeProvider>
       <main className="clock-shell">
-        <LiquidGlassSurface className="clock-glass" autoTextContrast={autoTextContrast}>
+        <LiquidGlassSurface
+          className="clock-glass"
+          autoTextContrast={autoTextContrast}
+          textContrastTone={textContrastTone}
+          onTextContrastToneChange={setTextContrastTone}
+        >
           <ClockFace />
         </LiquidGlassSurface>
         <SettingsButton />

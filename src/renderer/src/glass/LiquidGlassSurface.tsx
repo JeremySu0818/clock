@@ -1,4 +1,5 @@
 import {
+  createElement,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -11,7 +12,10 @@ import { useScreenCapture } from "./ScreenCaptureProvider";
 import { useLiquidGlassSurface } from "./useLiquidGlassSurface";
 
 type LiquidGlassSurfaceProps = ComponentPropsWithoutRef<"section"> & {
+  as?: "section" | "div" | "span";
   autoTextContrast?: boolean;
+  textContrastTone?: TextContrastTone;
+  onTextContrastToneChange?: (tone: TextContrastTone) => void;
 };
 
 type TextContrastTone = "light" | "dark";
@@ -64,7 +68,10 @@ function getBackdropContrastTone(
 }
 
 export function LiquidGlassSurface({
+  as = "section",
   autoTextContrast = true,
+  textContrastTone: controlledTextContrastTone = "light",
+  onTextContrastToneChange,
   children,
   className,
   style,
@@ -75,28 +82,25 @@ export function LiquidGlassSurface({
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameRef = useRef<number | null>(null);
   const contrastFrameRef = useRef(0);
-  const textContrastToneRef = useRef<TextContrastTone>("light");
+  const textContrastToneRef = useRef<TextContrastTone>(controlledTextContrastTone);
   const boundsRef = useRef<Bounds>({ left: 0, top: 0, width: 0, height: 0 });
   const sampleBoundsRef = useRef<Bounds | null>(null);
 
   const [isCaptureReady, setIsCaptureReady] = useState(false);
   const [captureError, setCaptureError] = useState<string | null>(null);
-  const [textContrastTone, setTextContrastTone] = useState<TextContrastTone>("light");
+  const [textContrastTone, setTextContrastTone] = useState<TextContrastTone>(controlledTextContrastTone);
 
   const { stream, metricsRef } = useScreenCapture();
 
   const mergedStyle: CSSProperties = {
     ...style
   };
+  const BackdropElement = as === "span" ? "span" : "div";
 
   useEffect(() => {
-    if (autoTextContrast) {
-      return;
-    }
-
-    textContrastToneRef.current = "light";
-    setTextContrastTone("light");
-  }, [autoTextContrast]);
+    textContrastToneRef.current = controlledTextContrastTone;
+    setTextContrastTone(controlledTextContrastTone);
+  }, [controlledTextContrastTone]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -261,6 +265,7 @@ export function LiquidGlassSurface({
           if (nextTone !== textContrastToneRef.current) {
             textContrastToneRef.current = nextTone;
             setTextContrastTone(nextTone);
+            onTextContrastToneChange?.(nextTone);
           }
         } catch {}
       }
@@ -276,24 +281,26 @@ export function LiquidGlassSurface({
         cancelAnimationFrame(frameRef.current);
       }
     };
-  }, [autoTextContrast, metricsRef, ref]);
+  }, [autoTextContrast, metricsRef, onTextContrastToneChange, ref]);
 
-  return (
-    <section
-      ref={ref}
-      className={[
+  return createElement(
+    as,
+    {
+      ref,
+      className: [
         "liquid-glass-surface",
         isCaptureReady ? "is-capture-ready" : "is-capture-fallback",
         `is-text-contrast-${textContrastTone}`,
         className
       ]
         .filter(Boolean)
-        .join(" ")}
-      data-capture-state={isCaptureReady ? "ready" : "fallback"}
-      data-capture-error={captureError ?? ""}
-      style={mergedStyle}
-      {...props}
-    >
+        .join(" "),
+      "data-capture-state": isCaptureReady ? "ready" : "fallback",
+      "data-capture-error": captureError ?? "",
+      style: mergedStyle,
+      ...props
+    },
+    <>
       {glass ? (
         <span
           aria-hidden="true"
@@ -301,11 +308,13 @@ export function LiquidGlassSurface({
           dangerouslySetInnerHTML={{ __html: glass.svgFilter }}
         />
       ) : null}
-      <div
-        aria-hidden="true"
-        className="liquid-glass-backdrop"
-        style={{ ...glassStyle, overflow: "hidden" }}
-      >
+      {createElement(
+        BackdropElement,
+        {
+          "aria-hidden": "true",
+          className: "liquid-glass-backdrop",
+          style: { ...glassStyle, overflow: "hidden" }
+        },
         <video
           ref={videoRef}
           autoPlay
@@ -319,8 +328,8 @@ export function LiquidGlassSurface({
             pointerEvents: "none"
           }}
         />
-      </div>
+      )}
       {children}
-    </section>
+    </>
   );
 }

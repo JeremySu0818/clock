@@ -60,7 +60,7 @@ export function SettingsButton(): ReactElement {
       onClick={handleClick}
     >
       <GlassProvider config={glassConfig}>
-        <LiquidGlassSurface className="settings-button-glass" autoTextContrast={true}>
+        <LiquidGlassSurface as="span" className="settings-button-glass" autoTextContrast={true}>
           <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
             <g id="SVGRepo_bgCarrier" strokeWidth="0" />
             <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" />
