@@ -8,7 +8,7 @@ import {
   screen,
   session,
 } from 'electron';
-import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import {
   DEFAULT_LANGUAGE_PREFERENCE,
@@ -36,6 +36,11 @@ const SETTINGS_CHANGED_CHANNEL = 'clock:settings-changed';
 const GET_SETTINGS_VISIBILITY_CHANNEL = 'clock:get-settings-visibility';
 const SETTINGS_VISIBILITY_CHANGED_CHANNEL = 'clock:settings-visibility-changed';
 const LINUX_AUTOSTART_FILE_NAME = 'clock.desktop';
+const WINDOWS_LOGIN_ITEM_NAME = 'Clock';
+const STALE_WINDOWS_LOGIN_ITEM_NAMES = [
+  'electron.app.Clock',
+  'electron.app.Electron',
+];
 
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
@@ -77,6 +82,12 @@ const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
 let clockSettings: ClockSettings = DEFAULT_CLOCK_SETTINGS;
 let clockWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
+
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!gotSingleInstanceLock) {
+  app.quit();
+}
 
 function isGlassAppearance(value: unknown): value is GlassAppearance {
   return value === 'liquid' || value === 'frosted';
@@ -121,6 +132,14 @@ function getClockSettingsPath(): string {
   return join(app.getPath('userData'), 'clock-settings.json');
 }
 
+function getClockSettingsTempPath(): string {
+  return join(app.getPath('userData'), 'clock-settings.json.tmp');
+}
+
+function getClockSettingsBackupPath(): string {
+  return join(app.getPath('userData'), `clock-settings.invalid-${Date.now()}.json`);
+}
+
 function getAppIconPath(): string {
   const iconFileName = process.platform === 'linux' ? 'icon.png' : 'icon.ico';
   return join(app.getAppPath(), `build/${iconFileName}`);
@@ -150,13 +169,56 @@ function getLinuxAutostartEntry(): string {
   ].join('\n');
 }
 
+function getWindowsLoginItemQueryOptions(): Electron.LoginItemSettingsOptions {
+  if (process.env.PORTABLE_EXECUTABLE_FILE) {
+    return {
+      path: process.env.PORTABLE_EXECUTABLE_FILE,
+    };
+  }
+
+  if (process.defaultApp) {
+    return {
+      path: process.execPath,
+      args: [app.getAppPath()],
+    };
+  }
+
+  return {
+    path: process.execPath,
+  };
+}
+
+function getWindowsLoginItemSettings(enabled: boolean): Electron.Settings {
+  return {
+    ...getWindowsLoginItemQueryOptions(),
+    enabled,
+    name: WINDOWS_LOGIN_ITEM_NAME,
+    openAtLogin: enabled,
+  };
+}
+
+function removeStaleWindowsLoginItems(): void {
+  for (const name of STALE_WINDOWS_LOGIN_ITEM_NAMES) {
+    if (name === WINDOWS_LOGIN_ITEM_NAME) {
+      continue;
+    }
+
+    app.setLoginItemSettings({
+      openAtLogin: false,
+      enabled: false,
+      name,
+    });
+  }
+}
+
 async function getLaunchAtLoginEnabled(): Promise<boolean> {
   if (process.platform === 'darwin') {
     return app.getLoginItemSettings().openAtLogin;
   }
 
   if (process.platform === 'win32') {
-    return app.getLoginItemSettings({ path: process.execPath }).openAtLogin;
+    const settings = app.getLoginItemSettings(getWindowsLoginItemQueryOptions());
+    return settings.openAtLogin || settings.executableWillLaunchAtLogin;
   }
 
   if (process.platform === 'linux') {
@@ -178,10 +240,9 @@ async function setLaunchAtLoginEnabled(enabled: boolean): Promise<void> {
   }
 
   if (process.platform === 'win32') {
-    app.setLoginItemSettings({
-      openAtLogin: enabled,
-      path: process.execPath,
-    });
+    removeStaleWindowsLoginItems();
+
+    app.setLoginItemSettings(getWindowsLoginItemSettings(enabled));
     return;
   }
 
@@ -209,38 +270,48 @@ async function reconcileLaunchAtLoginEnabled(enabled: boolean): Promise<boolean>
     // Best effort only: the app should still open even if login-item setup fails.
   }
 
+  if (process.platform === 'win32') {
+    return enabled;
+  }
+
   return getLaunchAtLoginEnabled();
 }
 
 async function loadClockSettings(): Promise<void> {
   let nextSettings = DEFAULT_CLOCK_SETTINGS;
-  let hasSavedSettings = true;
+  const settingsPath = getClockSettingsPath();
 
   try {
-    const settingsJson = await readFile(getClockSettingsPath(), 'utf8');
+    const settingsJson = await readFile(settingsPath, 'utf8');
     nextSettings = readClockSettings(
       JSON.parse(settingsJson),
       DEFAULT_CLOCK_SETTINGS,
     );
-  } catch {
-    hasSavedSettings = false;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+      try {
+        await rename(settingsPath, getClockSettingsBackupPath());
+      } catch {
+        // Keep startup resilient even if the corrupt settings file is locked.
+      }
+    }
+
     nextSettings = DEFAULT_CLOCK_SETTINGS;
   }
 
-  if (!hasSavedSettings && nextSettings.launchAtLogin) {
-    nextSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(true);
-  }
+  nextSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(
+    nextSettings.launchAtLogin,
+  );
 
-  clockSettings = {
-    ...nextSettings,
-    launchAtLogin: await getLaunchAtLoginEnabled(),
-  };
+  clockSettings = nextSettings;
 }
 
 async function saveClockSettings(): Promise<void> {
   const settingsPath = getClockSettingsPath();
+  const tempSettingsPath = getClockSettingsTempPath();
   await mkdir(dirname(settingsPath), { recursive: true });
-  await writeFile(settingsPath, JSON.stringify(clockSettings, null, 2), 'utf8');
+  await writeFile(tempSettingsPath, JSON.stringify(clockSettings, null, 2), 'utf8');
+  await rename(tempSettingsPath, settingsPath);
 }
 
 function publishClockSettings(): void {
@@ -585,6 +656,7 @@ function createSettingsWindow(): BrowserWindow | null {
   return win;
 }
 
+if (gotSingleInstanceLock) {
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
   await loadClockSettings();
@@ -667,12 +739,9 @@ app.whenReady().then(async () => {
     }
   });
 });
+}
 
-const gotSingleInstanceLock = app.requestSingleInstanceLock();
-
-if (!gotSingleInstanceLock) {
-  app.quit();
-} else {
+if (gotSingleInstanceLock) {
   app.on('second-instance', () => {
     if (!clockWindow || clockWindow.isDestroyed()) {
       return;

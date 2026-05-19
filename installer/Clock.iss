@@ -4,9 +4,9 @@
   #define AppVersion "1.0.0"
 #endif
 
-#define SourceExe GetEnv("CLOCK_SOURCE_EXE")
-#if SourceExe == ""
-  #define SourceExe "..\release\Clock-1.0.0-x64.exe"
+#define SourceDir GetEnv("CLOCK_SOURCE_DIR")
+#if SourceDir == ""
+  #define SourceDir "..\release\win-unpacked"
 #endif
 
 #define OutputDir GetEnv("CLOCK_INSTALLER_OUTPUT_DIR")
@@ -35,7 +35,7 @@ PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 
 [Files]
-Source: "{#SourceExe}"; DestDir: "{app}"; DestName: "Clock.exe"; Flags: ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Clock"; Filename: "{app}\Clock.exe"; IconFilename: "{app}\Clock.exe"

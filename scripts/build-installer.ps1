@@ -30,6 +30,24 @@ $configurationPath = Join-Path $root $Configuration
 $releaseDir = Join-Path $root 'release'
 $installerReleaseDir = Join-Path $root 'installer-release'
 
+function Reset-OutputDirectory {
+  param(
+    [string] $Path,
+    [string] $Root
+  )
+
+  $fullPath = [System.IO.Path]::GetFullPath($Path)
+  $fullRoot = [System.IO.Path]::GetFullPath($Root)
+  $rootPrefix = $fullRoot.TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+
+  if (-not $fullPath.StartsWith($rootPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to reset output directory outside project: $fullPath"
+  }
+
+  Remove-Item -LiteralPath $fullPath -Recurse -Force -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory -Force -Path $fullPath | Out-Null
+}
+
 if (-not (Test-Path -LiteralPath $configurationPath)) {
   throw "Inno Setup script not found: $configurationPath"
 }
@@ -39,26 +57,24 @@ try {
   Write-Host '[1/4] Installing npm dependencies...'
   npm install
 
-  Write-Host '[2/4] Building portable Electron package...'
-  npm run build
+  Write-Host '[2/4] Building unpacked Windows Electron package...'
+  npm run build:win-unpacked
 
   $packageJson = Get-Content -LiteralPath (Join-Path $root 'package.json') -Raw | ConvertFrom-Json
   $version = [string] $packageJson.version
-  $sourceExe = Get-ChildItem -LiteralPath $releaseDir -Filter 'Clock-*-x64.exe' -File |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1
+  $sourceDir = Join-Path $releaseDir 'win-unpacked'
+  $sourceExe = Join-Path $sourceDir 'Clock.exe'
 
-  if (-not $sourceExe) {
-    throw "Portable executable was not found in $releaseDir"
+  if (-not (Test-Path -LiteralPath $sourceExe)) {
+    throw "Unpacked executable was not found: $sourceExe"
   }
 
-  New-Item -ItemType Directory -Force -Path $installerReleaseDir | Out-Null
-  Copy-Item -LiteralPath $sourceExe.FullName -Destination (Join-Path $installerReleaseDir $sourceExe.Name) -Force
+  Reset-OutputDirectory -Path $installerReleaseDir -Root $root
 
-  Write-Host '[3/4] Copied portable executable to installer-release.'
+  Write-Host '[3/4] Prepared unpacked app for Inno Setup.'
 
   $env:CLOCK_APP_VERSION = $version
-  $env:CLOCK_SOURCE_EXE = $sourceExe.FullName
+  $env:CLOCK_SOURCE_DIR = $sourceDir
   $env:CLOCK_INSTALLER_OUTPUT_DIR = $installerReleaseDir
   Write-Host '[4/4] Building Inno Setup installer...'
   & (Resolve-Iscc) $configurationPath
@@ -69,6 +85,6 @@ try {
 finally {
   Pop-Location
   Remove-Item Env:\CLOCK_APP_VERSION -ErrorAction SilentlyContinue
-  Remove-Item Env:\CLOCK_SOURCE_EXE -ErrorAction SilentlyContinue
+  Remove-Item Env:\CLOCK_SOURCE_DIR -ErrorAction SilentlyContinue
   Remove-Item Env:\CLOCK_INSTALLER_OUTPUT_DIR -ErrorAction SilentlyContinue
 }
