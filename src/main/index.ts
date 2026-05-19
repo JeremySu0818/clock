@@ -14,10 +14,10 @@ import {
   DEFAULT_LANGUAGE_PREFERENCE,
   isLanguagePreference,
 } from '../shared/i18n';
-import type { 
-  ClockSettings, 
-  GlassAppearance, 
-  TextContrastTone 
+import type {
+  ClockSettings,
+  GlassAppearance,
+  TextContrastTone,
 } from '../shared/types';
 
 const CLOCK_WINDOW_WIDTH = 360;
@@ -137,16 +137,25 @@ function getClockSettingsTempPath(): string {
 }
 
 function getClockSettingsBackupPath(): string {
-  return join(app.getPath('userData'), `clock-settings.invalid-${Date.now()}.json`);
+  return join(
+    app.getPath('userData'),
+    `clock-settings.invalid-${Date.now()}.json`,
+  );
 }
 
 function getAppIconPath(): string {
-  const iconFileName = process.platform === 'linux' ? 'icon.png' : 'icon.ico';
+  const iconFileName =
+    process.platform === 'darwin'
+      ? 'icon.icns'
+      : process.platform === 'linux'
+        ? 'icon.png'
+        : 'icon.ico';
   return join(app.getAppPath(), `build/${iconFileName}`);
 }
 
 function getLinuxAutostartPath(): string {
-  const configHome = process.env.XDG_CONFIG_HOME || join(app.getPath('home'), '.config');
+  const configHome =
+    process.env.XDG_CONFIG_HOME || join(app.getPath('home'), '.config');
   return join(configHome, 'autostart', LINUX_AUTOSTART_FILE_NAME);
 }
 
@@ -217,7 +226,9 @@ async function getLaunchAtLoginEnabled(): Promise<boolean> {
   }
 
   if (process.platform === 'win32') {
-    const settings = app.getLoginItemSettings(getWindowsLoginItemQueryOptions());
+    const settings = app.getLoginItemSettings(
+      getWindowsLoginItemQueryOptions(),
+    );
     return settings.openAtLogin || settings.executableWillLaunchAtLogin;
   }
 
@@ -263,12 +274,10 @@ async function setLaunchAtLoginEnabled(enabled: boolean): Promise<void> {
   }
 }
 
-async function reconcileLaunchAtLoginEnabled(enabled: boolean): Promise<boolean> {
-  try {
-    await setLaunchAtLoginEnabled(enabled);
-  } catch {
-    // Best effort only: the app should still open even if login-item setup fails.
-  }
+async function reconcileLaunchAtLoginEnabled(
+  enabled: boolean,
+): Promise<boolean> {
+  await setLaunchAtLoginEnabled(enabled);
 
   if (process.platform === 'win32') {
     return enabled;
@@ -289,11 +298,7 @@ async function loadClockSettings(): Promise<void> {
     );
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      try {
-        await rename(settingsPath, getClockSettingsBackupPath());
-      } catch {
-        // Keep startup resilient even if the corrupt settings file is locked.
-      }
+      await rename(settingsPath, getClockSettingsBackupPath());
     }
 
     nextSettings = DEFAULT_CLOCK_SETTINGS;
@@ -310,7 +315,11 @@ async function saveClockSettings(): Promise<void> {
   const settingsPath = getClockSettingsPath();
   const tempSettingsPath = getClockSettingsTempPath();
   await mkdir(dirname(settingsPath), { recursive: true });
-  await writeFile(tempSettingsPath, JSON.stringify(clockSettings, null, 2), 'utf8');
+  await writeFile(
+    tempSettingsPath,
+    JSON.stringify(clockSettings, null, 2),
+    'utf8',
+  );
   await rename(tempSettingsPath, settingsPath);
 }
 
@@ -657,88 +666,88 @@ function createSettingsWindow(): BrowserWindow | null {
 }
 
 if (gotSingleInstanceLock) {
-app.whenReady().then(async () => {
-  Menu.setApplicationMenu(null);
-  await loadClockSettings();
-  await registerDisplayCaptureHandler();
+  app.whenReady().then(async () => {
+    Menu.setApplicationMenu(null);
+    await loadClockSettings();
+    await registerDisplayCaptureHandler();
 
-  ipcMain.handle(GET_WINDOW_METRICS_CHANNEL, (event) => {
-    const window = BrowserWindow.fromWebContents(event.sender);
+    ipcMain.handle(GET_WINDOW_METRICS_CHANNEL, (event) => {
+      const window = BrowserWindow.fromWebContents(event.sender);
 
-    if (!window) {
-      throw new Error('Unable to resolve BrowserWindow for renderer.');
-    }
-
-    return getDesktopGlassMetrics(window);
-  });
-
-  ipcMain.handle(GET_SETTINGS_CHANNEL, () => clockSettings);
-
-  ipcMain.handle(
-    SET_SETTINGS_CHANNEL,
-    async (_event, nextSettings: unknown) => {
-      const previousLaunchAtLogin = clockSettings.launchAtLogin;
-      clockSettings = readClockSettings(nextSettings, clockSettings);
-
-      if (clockSettings.launchAtLogin !== previousLaunchAtLogin) {
-        clockSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(
-          clockSettings.launchAtLogin,
-        );
+      if (!window) {
+        throw new Error('Unable to resolve BrowserWindow for renderer.');
       }
 
-      await saveClockSettings();
-      publishClockSettings();
-      return clockSettings;
-    },
-  );
+      return getDesktopGlassMetrics(window);
+    });
 
-  ipcMain.handle(GET_SETTINGS_VISIBILITY_CHANNEL, () => isSettingsVisible());
+    ipcMain.handle(GET_SETTINGS_CHANNEL, () => clockSettings);
 
-  createClockWindow();
+    ipcMain.handle(
+      SET_SETTINGS_CHANNEL,
+      async (_event, nextSettings: unknown) => {
+        const previousLaunchAtLogin = clockSettings.launchAtLogin;
+        clockSettings = readClockSettings(nextSettings, clockSettings);
 
-  ipcMain.on(TOGGLE_SETTINGS_CHANNEL, (event) => {
-    const senderWindow = BrowserWindow.fromWebContents(event.sender);
+        if (clockSettings.launchAtLogin !== previousLaunchAtLogin) {
+          clockSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(
+            clockSettings.launchAtLogin,
+          );
+        }
 
-    if (senderWindow === clockWindow) {
+        await saveClockSettings();
+        publishClockSettings();
+        return clockSettings;
+      },
+    );
+
+    ipcMain.handle(GET_SETTINGS_VISIBILITY_CHANNEL, () => isSettingsVisible());
+
+    createClockWindow();
+
+    ipcMain.on(TOGGLE_SETTINGS_CHANNEL, (event) => {
+      const senderWindow = BrowserWindow.fromWebContents(event.sender);
+
+      if (senderWindow === clockWindow) {
+        if (settingsWindow && !settingsWindow.isDestroyed()) {
+          settingsWindow.close();
+        } else {
+          createSettingsWindow();
+        }
+      }
+    });
+
+    ipcMain.on(CLOSE_SETTINGS_CHANNEL, () => {
       if (settingsWindow && !settingsWindow.isDestroyed()) {
         settingsWindow.close();
-      } else {
-        createSettingsWindow();
       }
-    }
+    });
+
+    globalShortcut.register('CommandOrControl+Alt+Space', () => {
+      if (!clockWindow || clockWindow.isDestroyed()) {
+        return;
+      }
+
+      revealClockWindow(clockWindow);
+      clockWindow.focus();
+      positionSettingsWindow();
+    });
+
+    screen.on('display-metrics-changed', () => {
+      if (clockWindow && !clockWindow.isDestroyed()) {
+        resetWindowToVisibleArea(clockWindow);
+        publishDesktopGlassMetrics(clockWindow);
+      }
+
+      positionSettingsWindow();
+    });
+
+    app.on('activate', () => {
+      if (!clockWindow || clockWindow.isDestroyed()) {
+        createClockWindow();
+      }
+    });
   });
-
-  ipcMain.on(CLOSE_SETTINGS_CHANNEL, () => {
-    if (settingsWindow && !settingsWindow.isDestroyed()) {
-      settingsWindow.close();
-    }
-  });
-
-  globalShortcut.register('CommandOrControl+Alt+Space', () => {
-    if (!clockWindow || clockWindow.isDestroyed()) {
-      return;
-    }
-
-    revealClockWindow(clockWindow);
-    clockWindow.focus();
-    positionSettingsWindow();
-  });
-
-  screen.on('display-metrics-changed', () => {
-    if (clockWindow && !clockWindow.isDestroyed()) {
-      resetWindowToVisibleArea(clockWindow);
-      publishDesktopGlassMetrics(clockWindow);
-    }
-
-    positionSettingsWindow();
-  });
-
-  app.on('activate', () => {
-    if (!clockWindow || clockWindow.isDestroyed()) {
-      createClockWindow();
-    }
-  });
-});
 }
 
 if (gotSingleInstanceLock) {
