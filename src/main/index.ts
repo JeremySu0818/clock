@@ -115,6 +115,11 @@ function getClockSettingsPath(): string {
   return join(app.getPath('userData'), 'clock-settings.json');
 }
 
+function getAppIconPath(): string {
+  const iconFileName = process.platform === 'linux' ? 'icon.png' : 'icon.ico';
+  return join(app.getAppPath(), `build/${iconFileName}`);
+}
+
 async function loadClockSettings(): Promise<void> {
   try {
     const settingsJson = await readFile(getClockSettingsPath(), 'utf8');
@@ -325,6 +330,7 @@ function createClockWindow(): BrowserWindow {
     skipTaskbar: true,
     alwaysOnTop: true,
     show: true,
+    icon: getAppIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       contextIsolation: true,
@@ -418,6 +424,7 @@ function createSettingsWindow(): BrowserWindow | null {
     skipTaskbar: true,
     alwaysOnTop: true,
     show: true,
+    icon: getAppIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       contextIsolation: true,
