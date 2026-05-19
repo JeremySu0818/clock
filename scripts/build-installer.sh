@@ -18,10 +18,10 @@ npx electron-vite build
 echo '[3/4] Building platform installer...'
 case "$PLATFORM" in
   Linux)
-    npx electron-builder --linux AppImage deb --x64 --config.directories.output=installer-release
+    npx electron-builder --linux AppImage deb --x64 --config.directories.output=installer-release --publish never
     ;;
   Darwin)
-    npx electron-builder --mac dmg zip --x64 --config.directories.output=installer-release
+    npx electron-builder --mac dmg zip --x64 --config.directories.output=installer-release --publish never
     ;;
   *)
     echo "Unsupported Unix platform: $PLATFORM" >&2
