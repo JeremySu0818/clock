@@ -1,7 +1,11 @@
 {
   "name": "clock",
   "version": "1.0.0",
-  "description": "",
+  "description": "A desktop clock app.",
+  "author": {
+    "name": "Jeremy",
+    "email": "xinghong.su0818@gmail.com"
+  },
   "type": "module",
   "main": "./out/main/index.cjs",
   "scripts": {
