@@ -180,7 +180,7 @@ function getAppIconPath(): string {
       : process.platform === 'linux'
         ? 'icon.png'
         : 'icon.ico';
-  return join(app.getAppPath(), `build/${iconFileName}`);
+  return join(app.getAppPath(), `assets/app-icon/${iconFileName}`);
 }
 
 function getLinuxAutostartPath(): string {
