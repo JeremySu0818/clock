@@ -33,6 +33,8 @@ jobs:
         run: npm run build:installer
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
+          CI: ''
+          GITHUB_ACTIONS: ''
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
