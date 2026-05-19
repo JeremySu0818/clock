@@ -38,7 +38,7 @@
     "appId": "clock",
     "productName": "Clock",
     "asar": true,
-    "publish": "never",
+    "publish": null,
     "directories": {
       "output": "release"
     },
