@@ -8,11 +8,11 @@ import {
   screen,
   session,
 } from 'electron';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import {
-  DEFAULT_LANGUAGE,
-  isSupportedLocale,
+  DEFAULT_LANGUAGE_PREFERENCE,
+  isLanguagePreference,
 } from '../shared/i18n';
 import type { 
   ClockSettings, 
@@ -35,6 +35,7 @@ const SET_SETTINGS_CHANNEL = 'clock:set-settings';
 const SETTINGS_CHANGED_CHANNEL = 'clock:settings-changed';
 const GET_SETTINGS_VISIBILITY_CHANNEL = 'clock:get-settings-visibility';
 const SETTINGS_VISIBILITY_CHANGED_CHANNEL = 'clock:settings-visibility-changed';
+const LINUX_AUTOSTART_FILE_NAME = 'clock.desktop';
 
 app.commandLine.appendSwitch('enable-gpu-rasterization');
 app.commandLine.appendSwitch('enable-zero-copy');
@@ -68,7 +69,8 @@ type DesktopGlassMetrics = {
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
   appearance: 'liquid',
-  language: DEFAULT_LANGUAGE,
+  language: DEFAULT_LANGUAGE_PREFERENCE,
+  launchAtLogin: true,
   textContrastTone: 'light',
 };
 
@@ -102,9 +104,13 @@ function readClockSettings(
     appearance: isGlassAppearance(candidate.appearance)
       ? candidate.appearance
       : fallback.appearance,
-    language: isSupportedLocale(candidate.language)
+    language: isLanguagePreference(candidate.language)
       ? candidate.language
       : fallback.language,
+    launchAtLogin:
+      typeof candidate.launchAtLogin === 'boolean'
+        ? candidate.launchAtLogin
+        : fallback.launchAtLogin,
     textContrastTone: isTextContrastTone(candidate.textContrastTone)
       ? candidate.textContrastTone
       : fallback.textContrastTone,
@@ -120,16 +126,115 @@ function getAppIconPath(): string {
   return join(app.getAppPath(), `build/${iconFileName}`);
 }
 
+function getLinuxAutostartPath(): string {
+  const configHome = process.env.XDG_CONFIG_HOME || join(app.getPath('home'), '.config');
+  return join(configHome, 'autostart', LINUX_AUTOSTART_FILE_NAME);
+}
+
+function quoteDesktopExec(value: string): string {
+  return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/%/g, '%%')}"`;
+}
+
+function getLinuxAutostartEntry(): string {
+  const executablePath = process.env.APPIMAGE || process.execPath;
+
+  return [
+    '[Desktop Entry]',
+    'Type=Application',
+    'Name=Clock',
+    `Exec=${quoteDesktopExec(executablePath)}`,
+    'Terminal=false',
+    'X-GNOME-Autostart-enabled=true',
+    'NoDisplay=false',
+    '',
+  ].join('\n');
+}
+
+async function getLaunchAtLoginEnabled(): Promise<boolean> {
+  if (process.platform === 'darwin') {
+    return app.getLoginItemSettings().openAtLogin;
+  }
+
+  if (process.platform === 'win32') {
+    return app.getLoginItemSettings({ path: process.execPath }).openAtLogin;
+  }
+
+  if (process.platform === 'linux') {
+    try {
+      await readFile(getLinuxAutostartPath(), 'utf8');
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+async function setLaunchAtLoginEnabled(enabled: boolean): Promise<void> {
+  if (process.platform === 'darwin') {
+    app.setLoginItemSettings({ openAtLogin: enabled });
+    return;
+  }
+
+  if (process.platform === 'win32') {
+    app.setLoginItemSettings({
+      openAtLogin: enabled,
+      path: process.execPath,
+    });
+    return;
+  }
+
+  if (process.platform === 'linux') {
+    const autostartPath = getLinuxAutostartPath();
+
+    if (enabled) {
+      await mkdir(dirname(autostartPath), { recursive: true });
+      await writeFile(autostartPath, getLinuxAutostartEntry(), 'utf8');
+      return;
+    }
+
+    try {
+      await unlink(autostartPath);
+    } catch {
+      return;
+    }
+  }
+}
+
+async function reconcileLaunchAtLoginEnabled(enabled: boolean): Promise<boolean> {
+  try {
+    await setLaunchAtLoginEnabled(enabled);
+  } catch {
+    // Best effort only: the app should still open even if login-item setup fails.
+  }
+
+  return getLaunchAtLoginEnabled();
+}
+
 async function loadClockSettings(): Promise<void> {
+  let nextSettings = DEFAULT_CLOCK_SETTINGS;
+  let hasSavedSettings = true;
+
   try {
     const settingsJson = await readFile(getClockSettingsPath(), 'utf8');
-    clockSettings = readClockSettings(
+    nextSettings = readClockSettings(
       JSON.parse(settingsJson),
       DEFAULT_CLOCK_SETTINGS,
     );
   } catch {
-    clockSettings = DEFAULT_CLOCK_SETTINGS;
+    hasSavedSettings = false;
+    nextSettings = DEFAULT_CLOCK_SETTINGS;
   }
+
+  if (!hasSavedSettings && nextSettings.launchAtLogin) {
+    nextSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(true);
+  }
+
+  clockSettings = {
+    ...nextSettings,
+    launchAtLogin: await getLaunchAtLoginEnabled(),
+  };
 }
 
 async function saveClockSettings(): Promise<void> {
@@ -500,7 +605,15 @@ app.whenReady().then(async () => {
   ipcMain.handle(
     SET_SETTINGS_CHANNEL,
     async (_event, nextSettings: unknown) => {
+      const previousLaunchAtLogin = clockSettings.launchAtLogin;
       clockSettings = readClockSettings(nextSettings, clockSettings);
+
+      if (clockSettings.launchAtLogin !== previousLaunchAtLogin) {
+        clockSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(
+          clockSettings.launchAtLogin,
+        );
+      }
+
       await saveClockSettings();
       publishClockSettings();
       return clockSettings;

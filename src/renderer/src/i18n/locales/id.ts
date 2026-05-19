@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Tutup pengaturan",
     "dialogLabel": "Pengaturan",
     "languageLabel": "Bahasa",
+    "launchAtLogin": "Mulai saat masuk",
     "settingsButtonLabel": "Buka pengaturan",
+    "languageOptions": {
+      "auto": "Deteksi otomatis"
+    },
     "appearanceOptions": {
       "frosted": "Kaca buram",
       "liquid": "Liquid Glass"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

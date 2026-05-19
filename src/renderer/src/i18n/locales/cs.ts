@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Zavřít nastavení",
     "dialogLabel": "Nastavení",
     "languageLabel": "Jazyk",
+    "launchAtLogin": "Spustit po přihlášení",
     "settingsButtonLabel": "Otevřít nastavení",
+    "languageOptions": {
+      "auto": "Automaticky rozpoznat"
+    },
     "appearanceOptions": {
       "frosted": "Matné sklo",
       "liquid": "Tekuté sklo"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

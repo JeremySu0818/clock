@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "सेटिंग बंद करें",
     "dialogLabel": "सेटिंग",
     "languageLabel": "भाषा",
+    "launchAtLogin": "लॉगिन पर शुरू करें",
     "settingsButtonLabel": "सेटिंग खोलें",
+    "languageOptions": {
+      "auto": "स्वचालित रूप से पहचानें"
+    },
     "appearanceOptions": {
       "frosted": "धुंधला ग्लास",
       "liquid": "लिक्विड ग्लास"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

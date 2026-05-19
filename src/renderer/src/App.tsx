@@ -9,7 +9,7 @@ import { useTranslation } from "./i18n/useTranslation";
 function ClockApp(): ReactElement {
   const {
     autoTextContrast,
-    language,
+    effectiveLanguage,
     setTextContrastTone,
     textContrastTone
   } = useClockSettings();
@@ -23,7 +23,7 @@ function ClockApp(): ReactElement {
         textContrastTone={textContrastTone}
         onTextContrastToneChange={setTextContrastTone}
       >
-        <ClockFace currentTimeLabel={t.clock.currentTime} language={language} />
+        <ClockFace currentTimeLabel={t.clock.currentTime} language={effectiveLanguage} />
       </LiquidGlassSurface>
       <SettingsButton />
     </main>

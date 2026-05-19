@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "설정 닫기",
     "dialogLabel": "설정",
     "languageLabel": "언어",
+    "launchAtLogin": "로그인 시 시작",
     "settingsButtonLabel": "설정 열기",
+    "languageOptions": {
+      "auto": "자동 감지"
+    },
     "appearanceOptions": {
       "frosted": "반투명 유리",
       "liquid": "리퀴드 글래스"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

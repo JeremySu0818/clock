@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { SupportedLocale } from "../../shared/i18n";
+import type { LanguagePreference } from "../../shared/i18n";
 
 type DesktopGlassMetrics = {
   captureExcludesSelf: boolean;
@@ -28,7 +28,8 @@ type TextContrastTone = "light" | "dark";
 type ClockSettings = {
   autoTextContrast: boolean;
   appearance: GlassAppearance;
-  language: SupportedLocale;
+  language: LanguagePreference;
+  launchAtLogin: boolean;
   textContrastTone: TextContrastTone;
 };
 

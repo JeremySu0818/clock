@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Beállítások bezárása",
     "dialogLabel": "Beállítások",
     "languageLabel": "Nyelv",
+    "launchAtLogin": "Indítás bejelentkezéskor",
     "settingsButtonLabel": "Beállítások megnyitása",
+    "languageOptions": {
+      "auto": "Automatikus felismerés"
+    },
     "appearanceOptions": {
       "frosted": "Matt üveg",
       "liquid": "Folyékony üveg"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

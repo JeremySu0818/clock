@@ -14,7 +14,11 @@ export type Translation = {
     closeSettings: string;
     dialogLabel: string;
     languageLabel: string;
+    launchAtLogin: string;
     settingsButtonLabel: string;
+    languageOptions: {
+      auto: string;
+    };
     appearanceOptions: {
       frosted: string;
       liquid: string;

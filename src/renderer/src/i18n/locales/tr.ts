@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Ayarları kapat",
     "dialogLabel": "Ayarlar",
     "languageLabel": "Dil",
+    "launchAtLogin": "Oturum açınca başlat",
     "settingsButtonLabel": "Ayarları aç",
+    "languageOptions": {
+      "auto": "Otomatik algıla"
+    },
     "appearanceOptions": {
       "frosted": "Buzlu cam",
       "liquid": "Liquid Glass"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

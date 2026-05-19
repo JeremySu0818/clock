@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Fechar configurações",
     "dialogLabel": "Configurações",
     "languageLabel": "Idioma",
+    "launchAtLogin": "Iniciar ao entrar",
     "settingsButtonLabel": "Abrir configurações",
+    "languageOptions": {
+      "auto": "Detectar automaticamente"
+    },
     "appearanceOptions": {
       "frosted": "Vidro fosco",
       "liquid": "Liquid Glass"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

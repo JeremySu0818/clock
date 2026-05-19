@@ -4,7 +4,7 @@ import { TRANSLATIONS } from './index';
 import type { Translation } from './types';
 
 export function useTranslation(): Translation {
-  const { language } = useClockSettings();
+  const { effectiveLanguage } = useClockSettings();
 
-  return TRANSLATIONS[language] ?? TRANSLATIONS[DEFAULT_LANGUAGE];
+  return TRANSLATIONS[effectiveLanguage] ?? TRANSLATIONS[DEFAULT_LANGUAGE];
 }

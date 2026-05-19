@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "設定を閉じる",
     "dialogLabel": "設定",
     "languageLabel": "言語",
+    "launchAtLogin": "ログイン時に起動",
     "settingsButtonLabel": "設定を開く",
+    "languageOptions": {
+      "auto": "自動検出"
+    },
     "appearanceOptions": {
       "frosted": "すりガラス",
       "liquid": "リキッドガラス"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

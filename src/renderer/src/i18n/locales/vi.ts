@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "Đóng cài đặt",
     "dialogLabel": "Cài đặt",
     "languageLabel": "Ngôn ngữ",
+    "launchAtLogin": "Khởi động khi đăng nhập",
     "settingsButtonLabel": "Mở cài đặt",
+    "languageOptions": {
+      "auto": "Tự động phát hiện"
+    },
     "appearanceOptions": {
       "frosted": "Kính mờ",
       "liquid": "Liquid Glass"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+

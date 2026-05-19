@@ -14,7 +14,11 @@ const translation: Translation = {
     "closeSettings": "关闭设置",
     "dialogLabel": "设置",
     "languageLabel": "语言",
+    "launchAtLogin": "登录时启动",
     "settingsButtonLabel": "打开设置",
+    "languageOptions": {
+      "auto": "自动检测"
+    },
     "appearanceOptions": {
       "frosted": "雾面玻璃",
       "liquid": "液态玻璃"
@@ -31,3 +35,4 @@ const translation: Translation = {
 };
 
 export default translation;
+
