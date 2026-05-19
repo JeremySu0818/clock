@@ -162,8 +162,14 @@ export function SettingsPanel(): ReactElement {
   const languageId = useId();
   const languageLabelId = useId();
   const languageMenuId = useId();
-  const [activeTab, setActiveTab] = useState<SettingsTab>("general");
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    return (localStorage.getItem("clockSettingsActiveTab") as SettingsTab) || "general";
+  });
   const [openMenu, setOpenMenu] = useState<SettingsMenuId | null>(null);
+  
+  useEffect(() => {
+    localStorage.setItem("clockSettingsActiveTab", activeTab);
+  }, [activeTab]);
   const { autoTextContrast, appearance, language, setAppearance, setAutoTextContrast, setLanguage } =
     useClockSettings();
   const t = useTranslation();
