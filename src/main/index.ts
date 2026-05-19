@@ -13,8 +13,12 @@ import { dirname, join } from 'node:path';
 import {
   DEFAULT_LANGUAGE,
   isSupportedLocale,
-  type SupportedLocale,
 } from '../shared/i18n';
+import type { 
+  ClockSettings, 
+  GlassAppearance, 
+  TextContrastTone 
+} from '../shared/types';
 
 const CLOCK_WINDOW_WIDTH = 360;
 const CLOCK_WINDOW_HEIGHT = 150;
@@ -59,16 +63,6 @@ type DesktopGlassMetrics = {
     x: number;
     y: number;
   };
-};
-
-type GlassAppearance = 'liquid' | 'frosted';
-type TextContrastTone = 'light' | 'dark';
-
-type ClockSettings = {
-  autoTextContrast: boolean;
-  appearance: GlassAppearance;
-  language: SupportedLocale;
-  textContrastTone: TextContrastTone;
 };
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {

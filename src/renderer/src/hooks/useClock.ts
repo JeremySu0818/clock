@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { SupportedLocale } from "../../../shared/i18n";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { SupportedLocale } from '../../../shared/i18n';
 
 type ClockParts = {
   time: string;
@@ -14,7 +14,7 @@ type ClockFormatters = {
 function formatClock(now: Date, formatters: ClockFormatters): ClockParts {
   return {
     time: formatters.time.format(now),
-    date: formatters.date.format(now)
+    date: formatters.date.format(now),
   };
 }
 
@@ -22,20 +22,24 @@ export function useClock(locale: SupportedLocale): ClockParts {
   const formatters = useMemo<ClockFormatters>(
     () => ({
       date: new Intl.DateTimeFormat(locale, {
-        weekday: "short",
-        month: "2-digit",
-        day: "2-digit"
+        weekday: 'short',
+        month: '2-digit',
+        day: '2-digit',
       }),
       time: new Intl.DateTimeFormat(locale, {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      })
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      }),
     }),
-    [locale]
+    [locale],
   );
-  const formatCurrentClock = useCallback(() => formatClock(new Date(), formatters), [formatters]);
+
+  const formatCurrentClock = useCallback(
+    () => formatClock(new Date(), formatters),
+    [formatters],
+  );
   const [parts, setParts] = useState(formatCurrentClock);
   const partsRef = useRef(parts);
 
@@ -44,7 +48,10 @@ export function useClock(locale: SupportedLocale): ClockParts {
 
     const syncParts = (): void => {
       const next = formatCurrentClock();
-      if (next.time !== partsRef.current.time || next.date !== partsRef.current.date) {
+      if (
+        next.time !== partsRef.current.time ||
+        next.date !== partsRef.current.date
+      ) {
         partsRef.current = next;
         setParts(next);
       }

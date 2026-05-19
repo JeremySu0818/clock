@@ -1,158 +1,14 @@
-import { useEffect, useId, useRef, useState, type ReactElement, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactElement } from "react";
 import type { SupportedLocale } from "../../../shared/i18n";
-import { GlassModeProvider } from "../glass/GlassModeProvider";
-import { LiquidGlassSurface } from "../glass/LiquidGlassSurface";
-import type { LiquidGlassConfig } from "../glass/LiquidGlassProvider";
 import { LANGUAGE_OPTIONS } from "../i18n";
 import { useTranslation } from "../i18n/useTranslation";
-import { useClockSettings, type GlassAppearance } from "./ClockSettingsProvider";
+import { useClockSettings } from "./ClockSettingsProvider";
+import { SettingsGlass } from "./SettingsGlass";
+import { SettingsSelect, type SettingsMenuId, type SettingsSelectOption } from "./SettingsSelect";
+import { SWITCH_THUMB_GLASS_CONFIG, SWITCH_TRACK_GLASS_CONFIG } from "./settings-constants";
+import type { GlassAppearance } from "../../../shared/types";
 
 type SettingsTab = "general" | "appearance";
-type SettingsMenuId = "appearance" | "language";
-
-const BUTTON_GLASS_CONFIG = {
-  radius: 5,
-  bezelWidth: 0,
-  glassThickness: 120,
-  surface: "convexSquircle"
-} satisfies Partial<LiquidGlassConfig>;
-
-const SWITCH_TRACK_GLASS_CONFIG = {
-  radius: 999,
-  bezelWidth: 0,
-  glassThickness: 100,
-  surface: "convexSquircle"
-} satisfies Partial<LiquidGlassConfig>;
-
-const SWITCH_THUMB_GLASS_CONFIG = {
-  radius: 999,
-  bezelWidth: 0,
-  glassThickness: 160,
-  surface: "convexCircle"
-} satisfies Partial<LiquidGlassConfig>;
-
-type SettingsGlassProps = {
-  children?: ReactNode;
-  className: string;
-  config?: Partial<LiquidGlassConfig>;
-};
-
-function SettingsGlass({ children, className, config = BUTTON_GLASS_CONFIG }: SettingsGlassProps): ReactElement {
-  return (
-    <GlassModeProvider config={config}>
-      <LiquidGlassSurface as="span" className={`settings-control-glass ${className}`} autoTextContrast={false}>
-        {children}
-      </LiquidGlassSurface>
-    </GlassModeProvider>
-  );
-}
-
-type SettingsSelectOption<TValue extends string> = {
-  label: string;
-  value: TValue;
-};
-
-type SettingsSelectProps<TValue extends string> = {
-  buttonId: string;
-  labelId: string;
-  menuId: string;
-  menuKey: SettingsMenuId;
-  onChange: (value: TValue) => void;
-  onOpenMenuChange: (menu: SettingsMenuId | null) => void;
-  openMenu: SettingsMenuId | null;
-  options: Array<SettingsSelectOption<TValue>>;
-  value: TValue;
-};
-
-function SettingsSelect<TValue extends string>({
-  buttonId,
-  labelId,
-  menuId,
-  menuKey,
-  onChange,
-  onOpenMenuChange,
-  openMenu,
-  options,
-  value
-}: SettingsSelectProps<TValue>): ReactElement {
-  const menuRef = useRef<HTMLDivElement | null>(null);
-  const isOpen = openMenu === menuKey;
-  const selectedLabel = options.find((option) => option.value === value)?.label ?? options[0]?.label ?? "";
-
-  useEffect(() => {
-    if (!isOpen) {
-      return undefined;
-    }
-
-    const handlePointerDown = (event: PointerEvent): void => {
-      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
-        return;
-      }
-
-      onOpenMenuChange(null);
-    };
-
-    window.addEventListener("pointerdown", handlePointerDown);
-
-    return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
-    };
-  }, [isOpen, onOpenMenuChange]);
-
-  return (
-    <div className="settings-menu" ref={menuRef}>
-      <button
-        id={buttonId}
-        type="button"
-        className="settings-menu-button"
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-controls={menuId}
-        aria-labelledby={`${labelId} ${buttonId}`}
-        onClick={() => onOpenMenuChange(isOpen ? null : menuKey)}
-        onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-            event.preventDefault();
-            onOpenMenuChange(menuKey);
-          }
-        }}
-      >
-        <SettingsGlass className="settings-menu-button-glass">
-          <span className="settings-control-content">{selectedLabel}</span>
-          <span className="settings-menu-chevron" aria-hidden="true">
-            ⌄
-          </span>
-        </SettingsGlass>
-      </button>
-      {isOpen ? (
-        <div
-          id={menuId}
-          className="settings-menu-popover"
-          role="listbox"
-          aria-labelledby={labelId}
-        >
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className="settings-menu-option"
-              role="option"
-              aria-selected={value === option.value}
-              onClick={() => {
-                onChange(option.value);
-                onOpenMenuChange(null);
-              }}
-            >
-              <SettingsGlass className="settings-menu-option-glass">
-                <span className="settings-control-content">{option.label}</span>
-              </SettingsGlass>
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
 
 export function SettingsPanel(): ReactElement {
   const autoTextContrastId = useId();
@@ -162,25 +18,36 @@ export function SettingsPanel(): ReactElement {
   const languageId = useId();
   const languageLabelId = useId();
   const languageMenuId = useId();
+
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
     return (localStorage.getItem("clockSettingsActiveTab") as SettingsTab) || "general";
   });
   const [openMenu, setOpenMenu] = useState<SettingsMenuId | null>(null);
   
-  useEffect(() => {
-    localStorage.setItem("clockSettingsActiveTab", activeTab);
-  }, [activeTab]);
-  const { autoTextContrast, appearance, language, setAppearance, setAutoTextContrast, setLanguage } =
-    useClockSettings();
+  const { 
+    autoTextContrast, 
+    appearance, 
+    language, 
+    setAppearance, 
+    setAutoTextContrast, 
+    setLanguage 
+  } = useClockSettings();
+  
   const t = useTranslation();
+
   const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
     { id: "general", label: t.settings.tabs.general },
     { id: "appearance", label: t.settings.tabs.appearance }
   ];
+
   const appearanceOptions: Array<SettingsSelectOption<GlassAppearance>> = [
     { value: "liquid", label: t.settings.appearanceOptions.liquid },
     { value: "frosted", label: t.settings.appearanceOptions.frosted }
   ];
+
+  useEffect(() => {
+    localStorage.setItem("clockSettingsActiveTab", activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -215,6 +82,7 @@ export function SettingsPanel(): ReactElement {
           </svg>
         </SettingsGlass>
       </button>
+
       <nav className="settings-sidebar" aria-label={t.settings.categoriesLabel}>
         {settingsTabs.map((tab) => (
           <button
@@ -228,6 +96,7 @@ export function SettingsPanel(): ReactElement {
           </button>
         ))}
       </nav>
+
       <section
         className="settings-content"
         aria-label={activeTab === "general" ? t.settings.sections.general : t.settings.sections.appearance}
@@ -253,6 +122,7 @@ export function SettingsPanel(): ReactElement {
                 </SettingsGlass>
               </button>
             </label>
+
             <div className="settings-row">
               <span className="settings-copy">
                 <span id={languageLabelId} className="settings-title">

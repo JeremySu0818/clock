@@ -13,16 +13,11 @@ import {
   LOCALE_DIRECTIONS,
   type SupportedLocale
 } from "../../../shared/i18n";
-
-export type GlassAppearance = "liquid" | "frosted";
-export type TextContrastTone = "light" | "dark";
-
-type ClockSettings = {
-  autoTextContrast: boolean;
-  appearance: GlassAppearance;
-  language: SupportedLocale;
-  textContrastTone: TextContrastTone;
-};
+import type { 
+  ClockSettings, 
+  GlassAppearance, 
+  TextContrastTone 
+} from "../../../shared/types";
 
 type ClockSettingsContextValue = ClockSettings & {
   setAutoTextContrast: (enabled: boolean) => void;

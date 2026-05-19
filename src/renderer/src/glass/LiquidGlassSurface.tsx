@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useScreenCapture } from "./ScreenCaptureProvider";
 import { useLiquidGlassSurface } from "./useLiquidGlassSurface";
+import { getBackdropContrastTone, type TextContrastTone } from "./glass-utils";
 
 type LiquidGlassSurfaceProps = ComponentPropsWithoutRef<"section"> & {
   as?: "section" | "div" | "span";
@@ -18,54 +19,10 @@ type LiquidGlassSurfaceProps = ComponentPropsWithoutRef<"section"> & {
   onTextContrastToneChange?: (tone: TextContrastTone) => void;
 };
 
-type TextContrastTone = "light" | "dark";
 type Bounds = { left: number; top: number; width: number; height: number };
 
 const CONTRAST_SAMPLE_INTERVAL = 6;
-const DARK_TEXT_LUMINANCE_THRESHOLD = 0.58;
-const LIGHT_TEXT_LUMINANCE_THRESHOLD = 0.48;
 const CONTRAST_SAMPLE_SELECTOR = "[data-contrast-sample]";
-
-function getBackdropContrastTone(
-  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  width: number,
-  height: number,
-  currentTone: TextContrastTone
-): TextContrastTone {
-  const image = context.getImageData(0, 0, width, height);
-  const data = image.data;
-  const stride = Math.max(4, Math.min(width, height) / 14 | 0);
-  let luminanceTotal = 0;
-  let samples = 0;
-
-  for (let y = 0; y < height; y += stride) {
-    const rowOffset = y * width;
-    for (let x = 0; x < width; x += stride) {
-      const offset = (rowOffset + x) << 2;
-      const alpha = data[offset + 3];
-
-      if (alpha <= 0) {
-        continue;
-      }
-
-      const alphaFactor = alpha / 255;
-      luminanceTotal += (0.2126 * data[offset] + 0.7152 * data[offset + 1] + 0.0722 * data[offset + 2]) / 255 * alphaFactor;
-      samples += 1;
-    }
-  }
-
-  if (samples === 0) {
-    return currentTone;
-  }
-
-  const luminance = luminanceTotal / samples;
-
-  if (currentTone === "dark") {
-    return luminance < LIGHT_TEXT_LUMINANCE_THRESHOLD ? "light" : "dark";
-  }
-
-  return luminance > DARK_TEXT_LUMINANCE_THRESHOLD ? "dark" : "light";
-}
 
 export function LiquidGlassSurface({
   as = "section",
