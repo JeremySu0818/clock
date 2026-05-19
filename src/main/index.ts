@@ -79,7 +79,15 @@ const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   textContrastTone: 'light',
 };
 
-let clockSettings: ClockSettings = DEFAULT_CLOCK_SETTINGS;
+const CLOCK_SETTINGS_KEYS: Array<keyof ClockSettings> = [
+  'autoTextContrast',
+  'appearance',
+  'language',
+  'launchAtLogin',
+  'textContrastTone',
+];
+
+let clockSettings: ClockSettings = createDefaultClockSettings();
 let clockWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
 
@@ -89,12 +97,41 @@ if (!gotSingleInstanceLock) {
   app.quit();
 }
 
+function createDefaultClockSettings(): ClockSettings {
+  return { ...DEFAULT_CLOCK_SETTINGS };
+}
+
 function isGlassAppearance(value: unknown): value is GlassAppearance {
   return value === 'liquid' || value === 'frosted';
 }
 
 function isTextContrastTone(value: unknown): value is TextContrastTone {
   return value === 'light' || value === 'dark';
+}
+
+function isClockSettingsRecord(
+  value: unknown,
+): value is Record<keyof ClockSettings, unknown> {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function hasNormalizedClockSettingsShape(
+  value: unknown,
+  normalizedSettings: ClockSettings,
+): boolean {
+  if (!isClockSettingsRecord(value)) {
+    return false;
+  }
+
+  const valueKeys = Object.keys(value);
+
+  if (valueKeys.length !== CLOCK_SETTINGS_KEYS.length) {
+    return false;
+  }
+
+  return CLOCK_SETTINGS_KEYS.every(
+    (key) => value[key] === normalizedSettings[key],
+  );
 }
 
 function readClockSettings(
@@ -134,13 +171,6 @@ function getClockSettingsPath(): string {
 
 function getClockSettingsTempPath(): string {
   return join(app.getPath('userData'), 'clock-settings.json.tmp');
-}
-
-function getClockSettingsBackupPath(): string {
-  return join(
-    app.getPath('userData'),
-    `clock-settings.invalid-${Date.now()}.json`,
-  );
 }
 
 function getAppIconPath(): string {
@@ -287,28 +317,40 @@ async function reconcileLaunchAtLoginEnabled(
 }
 
 async function loadClockSettings(): Promise<void> {
-  let nextSettings = DEFAULT_CLOCK_SETTINGS;
+  let nextSettings = createDefaultClockSettings();
+  let shouldSaveSettings = false;
   const settingsPath = getClockSettingsPath();
 
   try {
     const settingsJson = await readFile(settingsPath, 'utf8');
+    const parsedSettings: unknown = JSON.parse(settingsJson);
     nextSettings = readClockSettings(
-      JSON.parse(settingsJson),
-      DEFAULT_CLOCK_SETTINGS,
+      parsedSettings,
+      createDefaultClockSettings(),
     );
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-      await rename(settingsPath, getClockSettingsBackupPath());
-    }
-
-    nextSettings = DEFAULT_CLOCK_SETTINGS;
+    shouldSaveSettings = !hasNormalizedClockSettingsShape(
+      parsedSettings,
+      nextSettings,
+    );
+  } catch {
+    nextSettings = createDefaultClockSettings();
+    shouldSaveSettings = true;
   }
 
+  const previousLaunchAtLogin = nextSettings.launchAtLogin;
   nextSettings.launchAtLogin = await reconcileLaunchAtLoginEnabled(
     nextSettings.launchAtLogin,
   );
 
+  if (nextSettings.launchAtLogin !== previousLaunchAtLogin) {
+    shouldSaveSettings = true;
+  }
+
   clockSettings = nextSettings;
+
+  if (shouldSaveSettings) {
+    await saveClockSettings();
+  }
 }
 
 async function saveClockSettings(): Promise<void> {
