@@ -300,8 +300,8 @@ export function FeatureWorkspace({
                           setRingingAlarmIds((ids) => ids.filter((id) => id !== alarm.id));
                         }}
                       >
-                        <SettingsGlass className="settings-menu-button-glass" style={{ minHeight: "26px", padding: "0 10px" }}>
-                          <span className="settings-control-content">停止</span>
+                        <SettingsGlass className="settings-menu-button-glass">
+                          <span className="settings-control-content" style={{ minHeight: "26px", padding: "0 10px", display: "flex", alignItems: "center" }}>停止</span>
                         </SettingsGlass>
                       </button>
                     ) : null}
@@ -314,8 +314,8 @@ export function FeatureWorkspace({
                         setRingingAlarmIds((ids) => ids.filter((id) => id !== alarm.id));
                       }}
                     >
-                      <SettingsGlass className="settings-menu-button-glass" style={{ minHeight: "26px", padding: "0 10px" }}>
-                        <span className="settings-control-content" style={{ color: "rgb(255 100 100 / 0.8)" }}>
+                      <SettingsGlass className="settings-menu-button-glass">
+                        <span className="settings-control-content" style={{ color: "rgb(255 100 100 / 0.8)", minHeight: "26px", padding: "0 10px", display: "flex", alignItems: "center" }}>
                           刪除
                         </span>
                       </SettingsGlass>
