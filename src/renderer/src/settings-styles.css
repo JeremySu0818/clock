@@ -199,8 +199,10 @@ body {
   color: var(--settings-text-color, rgb(255 255 255 / 0.6));
 }
 
-.settings-control-glass.is-capture-ready,
-.settings-control-glass.is-capture-fallback {
+.settings-panel .liquid-glass-surface.is-capture-ready,
+.settings-panel .liquid-glass-surface.is-capture-fallback,
+.settings-menu-popover .liquid-glass-surface.is-capture-ready,
+.settings-menu-popover .liquid-glass-surface.is-capture-fallback {
   background: transparent;
   box-shadow: none;
 }
