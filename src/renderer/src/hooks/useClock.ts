@@ -3,6 +3,7 @@ import type { SupportedLocale } from '../../../shared/i18n';
 
 type ClockParts = {
   time: string;
+  dayPeriod?: string;
   date: string;
 };
 
@@ -12,13 +13,25 @@ type ClockFormatters = {
 };
 
 function formatClock(now: Date, formatters: ClockFormatters): ClockParts {
+  const timeParts = formatters.time.formatToParts(now);
+  const dayPeriod = timeParts.find((part) => part.type === 'dayPeriod')?.value;
+  const timeString = timeParts
+    .filter((part) => part.type !== 'dayPeriod')
+    .map((part) => part.value)
+    .join('')
+    .trim();
+
   return {
-    time: formatters.time.format(now),
+    time: timeString,
+    dayPeriod,
     date: formatters.date.format(now),
   };
 }
 
-export function useClock(locale: SupportedLocale): ClockParts {
+export function useClock(
+  locale: SupportedLocale,
+  timeFormat: '12h' | '24h' = '24h',
+): ClockParts {
   const formatters = useMemo<ClockFormatters>(
     () => ({
       date: new Intl.DateTimeFormat(locale, {
@@ -30,10 +43,10 @@ export function useClock(locale: SupportedLocale): ClockParts {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false,
+        hour12: timeFormat === '12h',
       }),
     }),
-    [locale],
+    [locale, timeFormat],
   );
 
   const formatCurrentClock = useCallback(

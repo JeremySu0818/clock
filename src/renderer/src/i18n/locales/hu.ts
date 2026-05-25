@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Beállítások bezárása',
     dialogLabel: 'Beállítások',
     languageLabel: 'Nyelv',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Indítás bejelentkezéskor',
     settingsButtonLabel: 'Beállítások megnyitása',
     languageOptions: {

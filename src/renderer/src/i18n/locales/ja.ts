@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: '設定を閉じる',
     dialogLabel: '設定',
     languageLabel: '言語',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'ログイン時に起動',
     settingsButtonLabel: '設定を開く',
     languageOptions: {

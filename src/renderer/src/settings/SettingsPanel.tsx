@@ -13,7 +13,7 @@ import {
   SWITCH_THUMB_GLASS_CONFIG,
   SWITCH_TRACK_GLASS_CONFIG,
 } from './settings-constants';
-import type { GlassAppearance } from '../../../shared/types';
+import type { GlassAppearance, TimeFormat } from '../../../shared/types';
 
 type SettingsTab = 'general' | 'appearance';
 
@@ -25,6 +25,9 @@ export function SettingsPanel(): ReactElement {
   const languageId = useId();
   const languageLabelId = useId();
   const languageMenuId = useId();
+  const timeFormatId = useId();
+  const timeFormatLabelId = useId();
+  const timeFormatMenuId = useId();
   const launchAtLoginId = useId();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
@@ -40,10 +43,12 @@ export function SettingsPanel(): ReactElement {
     appearance,
     language,
     launchAtLogin,
+    timeFormat,
     setAppearance,
     setAutoTextContrast,
     setLanguage,
     setLaunchAtLogin,
+    setTimeFormat,
   } = useClockSettings();
 
   const t = useTranslation();
@@ -60,6 +65,10 @@ export function SettingsPanel(): ReactElement {
   const languageOptions: Array<SettingsSelectOption<LanguagePreference>> = [
     { value: 'auto', label: t.settings.languageOptions.auto },
     ...LANGUAGE_OPTIONS,
+  ];
+  const timeFormatOptions: Array<SettingsSelectOption<TimeFormat>> = [
+    { value: '12h', label: t.settings.timeFormatOptions.h12 },
+    { value: '24h', label: t.settings.timeFormatOptions.h24 },
   ];
 
   useEffect(() => {
@@ -207,6 +216,25 @@ export function SettingsPanel(): ReactElement {
                   openMenu={openMenu}
                   options={languageOptions}
                   value={language}
+                />
+              </div>
+
+              <div className="settings-row">
+                <span className="settings-copy">
+                  <span id={timeFormatLabelId} className="settings-title">
+                    {t.settings.timeFormatLabel}
+                  </span>
+                </span>
+                <SettingsSelect<TimeFormat>
+                  buttonId={timeFormatId}
+                  labelId={timeFormatLabelId}
+                  menuId={timeFormatMenuId}
+                  menuKey="timeFormat"
+                  onChange={setTimeFormat}
+                  onOpenMenuChange={setOpenMenu}
+                  openMenu={openMenu}
+                  options={timeFormatOptions}
+                  value={timeFormat}
                 />
               </div>
             </>

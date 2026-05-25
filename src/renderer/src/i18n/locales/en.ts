@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Close settings',
     dialogLabel: 'Settings',
     languageLabel: 'Language',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Start at login',
     settingsButtonLabel: 'Open settings',
     languageOptions: {

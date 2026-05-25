@@ -15,6 +15,7 @@ function ClockApp(): ReactElement {
   const {
     autoTextContrast,
     effectiveLanguage,
+    timeFormat,
     setTextContrastTone,
     textContrastTone,
   } = useClockSettings();
@@ -33,6 +34,7 @@ function ClockApp(): ReactElement {
           <ClockFace
             currentTimeLabel={t.clock.currentTime}
             language={effectiveLanguage}
+            timeFormat={timeFormat}
           />
         ) : (
           <FeatureWorkspace

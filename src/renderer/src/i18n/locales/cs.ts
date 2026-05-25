@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Zavřít nastavení',
     dialogLabel: 'Nastavení',
     languageLabel: 'Jazyk',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Spustit po přihlášení',
     settingsButtonLabel: 'Otevřít nastavení',
     languageOptions: {

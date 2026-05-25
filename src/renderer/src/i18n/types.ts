@@ -14,8 +14,13 @@ export type Translation = {
     closeSettings: string;
     dialogLabel: string;
     languageLabel: string;
+    timeFormatLabel: string;
     launchAtLogin: string;
     settingsButtonLabel: string;
+    timeFormatOptions: {
+      h12: string;
+      h24: string;
+    };
     languageOptions: {
       auto: string;
     };

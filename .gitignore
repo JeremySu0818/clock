@@ -6,4 +6,3 @@ installer-release/
 *.tgz
 *.log
 .DS_Store
-package-lock.json

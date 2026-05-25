@@ -30,6 +30,7 @@ type ClockSettings = {
   appearance: GlassAppearance;
   language: LanguagePreference;
   launchAtLogin: boolean;
+  timeFormat: '12h' | '24h';
   textContrastTone: TextContrastTone;
 };
 

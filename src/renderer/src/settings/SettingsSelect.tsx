@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactElement } from 'react';
 import { SettingsGlass } from './SettingsGlass';
 
-export type SettingsMenuId = 'appearance' | 'language';
+export type SettingsMenuId = 'appearance' | 'language' | 'timeFormat';
 
 export type SettingsSelectOption<TValue extends string> = {
   label: string;

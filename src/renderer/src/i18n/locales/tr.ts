@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Ayarları kapat',
     dialogLabel: 'Ayarlar',
     languageLabel: 'Dil',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Oturum açınca başlat',
     settingsButtonLabel: 'Ayarları aç',
     languageOptions: {

@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Đóng cài đặt',
     dialogLabel: 'Cài đặt',
     languageLabel: 'Ngôn ngữ',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Khởi động khi đăng nhập',
     settingsButtonLabel: 'Mở cài đặt',
     languageOptions: {

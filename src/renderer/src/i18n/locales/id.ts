@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: 'Tutup pengaturan',
     dialogLabel: 'Pengaturan',
     languageLabel: 'Bahasa',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: 'Mulai saat masuk',
     settingsButtonLabel: 'Buka pengaturan',
     languageOptions: {

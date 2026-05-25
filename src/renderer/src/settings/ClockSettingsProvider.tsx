@@ -19,6 +19,7 @@ import type {
   ClockSettings,
   GlassAppearance,
   TextContrastTone,
+  TimeFormat,
 } from '../../../shared/types';
 
 type ClockSettingsContextValue = ClockSettings & {
@@ -27,6 +28,7 @@ type ClockSettingsContextValue = ClockSettings & {
   setAppearance: (appearance: GlassAppearance) => void;
   setLanguage: (language: LanguagePreference) => void;
   setLaunchAtLogin: (enabled: boolean) => void;
+  setTimeFormat: (format: TimeFormat) => void;
   setTextContrastTone: (tone: TextContrastTone) => void;
 };
 
@@ -35,6 +37,7 @@ const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   appearance: 'liquid',
   language: DEFAULT_LANGUAGE_PREFERENCE,
   launchAtLogin: true,
+  timeFormat: '24h',
   textContrastTone: 'light',
 };
 
@@ -150,6 +153,14 @@ export function ClockSettingsProvider({
       .catch(() => {});
   }, []);
 
+  const setTimeFormat = useCallback((timeFormat: TimeFormat): void => {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      timeFormat,
+    }));
+    void window.clockSettings?.setSettings({ timeFormat }).catch(() => {});
+  }, []);
+
   const setTextContrastTone = useCallback(
     (textContrastTone: TextContrastTone): void => {
       setSettings((currentSettings) => {
@@ -177,6 +188,7 @@ export function ClockSettingsProvider({
       setAppearance,
       setLanguage,
       setLaunchAtLogin,
+      setTimeFormat,
       setTextContrastTone,
     }),
     [
@@ -185,6 +197,7 @@ export function ClockSettingsProvider({
       setAutoTextContrast,
       setLanguage,
       setLaunchAtLogin,
+      setTimeFormat,
       setTextContrastTone,
       settings,
     ],

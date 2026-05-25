@@ -76,6 +76,7 @@ const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   appearance: 'liquid',
   language: DEFAULT_LANGUAGE_PREFERENCE,
   launchAtLogin: true,
+  timeFormat: '24h',
   textContrastTone: 'light',
 };
 
@@ -84,6 +85,7 @@ const CLOCK_SETTINGS_KEYS: Array<keyof ClockSettings> = [
   'appearance',
   'language',
   'launchAtLogin',
+  'timeFormat',
   'textContrastTone',
 ];
 
@@ -108,6 +110,10 @@ function isGlassAppearance(value: unknown): value is GlassAppearance {
 
 function isTextContrastTone(value: unknown): value is TextContrastTone {
   return value === 'light' || value === 'dark';
+}
+
+function isTimeFormat(value: unknown): value is '12h' | '24h' {
+  return value === '12h' || value === '24h';
 }
 
 function isClockSettingsRecord(
@@ -160,6 +166,9 @@ function readClockSettings(
       typeof candidate.launchAtLogin === 'boolean'
         ? candidate.launchAtLogin
         : fallback.launchAtLogin,
+    timeFormat: isTimeFormat(candidate.timeFormat)
+      ? candidate.timeFormat
+      : fallback.timeFormat,
     textContrastTone: isTextContrastTone(candidate.textContrastTone)
       ? candidate.textContrastTone
       : fallback.textContrastTone,

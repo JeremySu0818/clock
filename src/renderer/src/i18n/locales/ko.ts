@@ -14,6 +14,11 @@ const translation: Translation = {
     closeSettings: '설정 닫기',
     dialogLabel: '설정',
     languageLabel: '언어',
+    timeFormatLabel: 'Time format',
+    timeFormatOptions: {
+      h12: '12-hour',
+      h24: '24-hour',
+    },
     launchAtLogin: '로그인 시 시작',
     settingsButtonLabel: '설정 열기',
     languageOptions: {

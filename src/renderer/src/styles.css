@@ -170,6 +170,15 @@
     text-shadow 0.5s ease-out;
 }
 
+.clock-day-period {
+  font-size: 0.22em;
+  display: inline-block;
+  vertical-align: baseline;
+  margin-left: 0.2em;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
 .liquid-glass-surface.is-capture-ready .clock-time {
   -webkit-text-fill-color: rgb(255 255 255 / 0.12);
 }
