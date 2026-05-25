@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'Obecné',
     },
   },
+  worldClock: {
+    title: 'Světový čas',
+    backToMain: 'Zpět na hlavní obrazovku',
+    menuLabel: 'Otevřít nabídku funkcí',
+    menuTitle: 'Nabídka funkcí',
+    zones: {
+      taipei: { city: 'Tchaj-pej', note: 'Místní' },
+      tokyo: { city: 'Tokio', note: 'Japonsko' },
+      london: { city: 'Londýn', note: 'Velká Británie' },
+      newYork: { city: 'New York', note: 'Východ USA' },
+      losAngeles: { city: 'Los Angeles', note: 'Západ USA' },
+    },
+  },
+  alarm: {
+    title: 'Budík',
+    newAlarm: 'Nový budík',
+    alarmNamePlaceholder: 'Název budíku',
+    add: 'Přidat',
+    ringing: 'Zvoní',
+    stop: 'Zastavit',
+    delete: 'Smazat',
+  },
 };
 
 export default translation;

@@ -6,6 +6,7 @@ import {
   SWITCH_THUMB_GLASS_CONFIG,
   SWITCH_TRACK_GLASS_CONFIG,
 } from '../settings/settings-constants';
+import { useTranslation } from '../i18n/useTranslation';
 
 type FeatureWorkspaceProps = {
   language: SupportedLocale;
@@ -13,9 +14,8 @@ type FeatureWorkspaceProps = {
   onBack: () => void;
 };
 
-type WorldClockZone = {
-  city: string;
-  note: string;
+type WorldClockZoneConfig = {
+  key: 'taipei' | 'tokyo' | 'london' | 'newYork' | 'losAngeles';
   timeZone: string;
 };
 
@@ -26,12 +26,12 @@ type AlarmItem = {
   enabled: boolean;
 };
 
-const WORLD_CLOCK_ZONES: WorldClockZone[] = [
-  { city: '台北', note: '本地', timeZone: 'Asia/Taipei' },
-  { city: '東京', note: '日本', timeZone: 'Asia/Tokyo' },
-  { city: '倫敦', note: '英國', timeZone: 'Europe/London' },
-  { city: '紐約', note: '美東', timeZone: 'America/New_York' },
-  { city: '洛杉磯', note: '美西', timeZone: 'America/Los_Angeles' },
+const WORLD_CLOCK_ZONES: WorldClockZoneConfig[] = [
+  { key: 'taipei', timeZone: 'Asia/Taipei' },
+  { key: 'tokyo', timeZone: 'Asia/Tokyo' },
+  { key: 'london', timeZone: 'Europe/London' },
+  { key: 'newYork', timeZone: 'America/New_York' },
+  { key: 'losAngeles', timeZone: 'America/Los_Angeles' },
 ];
 
 const DEFAULT_ALARMS: AlarmItem[] = [];
@@ -53,6 +53,7 @@ export function FeatureWorkspace({
   mode,
   onBack,
 }: FeatureWorkspaceProps): ReactElement {
+  const t = useTranslation();
   const [now, setNow] = useState(() => new Date());
   const [alarms, setAlarms] = useState<AlarmItem[]>(DEFAULT_ALARMS);
   const [draftTime, setDraftTime] = useState('08:00');
@@ -136,6 +137,14 @@ export function FeatureWorkspace({
     );
   }, [language]);
 
+  const worldClockZones = useMemo(() => {
+    return WORLD_CLOCK_ZONES.map((zone) => ({
+      city: t.worldClock.zones[zone.key].city,
+      note: t.worldClock.zones[zone.key].note,
+      timeZone: zone.timeZone,
+    }));
+  }, [t]);
+
   const addAlarm = (): void => {
     if (!draftTime) {
       return;
@@ -145,7 +154,7 @@ export function FeatureWorkspace({
       ...items,
       {
         id: `${Date.now()}`,
-        label: draftLabel.trim() || '新鬧鐘',
+        label: draftLabel.trim() || t.alarm.newAlarm,
         time: draftTime,
         enabled: true,
       },
@@ -153,7 +162,7 @@ export function FeatureWorkspace({
     setDraftLabel('');
   };
 
-  const title = mode === 'world-clock' ? '世界時鐘' : '鬧鐘';
+  const title = mode === 'world-clock' ? t.worldClock.title : t.alarm.title;
 
   return (
     <div
@@ -170,7 +179,7 @@ export function FeatureWorkspace({
       <button
         type="button"
         className="settings-close"
-        aria-label="返回主畫面"
+        aria-label={t.worldClock.backToMain}
         onClick={onBack}
       >
         <SettingsGlass className="settings-close-glass">
@@ -196,7 +205,7 @@ export function FeatureWorkspace({
             {title}
           </h2>
           {mode === 'world-clock' ? (
-            WORLD_CLOCK_ZONES.map((zone) => {
+            worldClockZones.map((zone) => {
               const formatter = timeFormatterByZone.get(zone.timeZone);
               const time = formatter ? formatter.format(now) : '--:--:--';
 
@@ -266,7 +275,7 @@ export function FeatureWorkspace({
                       type="text"
                       value={draftLabel}
                       onChange={(event) => setDraftLabel(event.target.value)}
-                      placeholder="鬧鐘名稱"
+                      placeholder={t.alarm.alarmNamePlaceholder}
                       maxLength={20}
                       style={{
                         position: 'relative',
@@ -295,7 +304,7 @@ export function FeatureWorkspace({
                       className="settings-control-content"
                       style={{ padding: '0 4px' }}
                     >
-                      新增
+                      {t.alarm.add}
                     </span>
                   </SettingsGlass>
                 </button>
@@ -319,7 +328,7 @@ export function FeatureWorkspace({
                         <span
                           style={{ color: 'rgb(255 212 156)', marginLeft: 8 }}
                         >
-                          響鈴中
+                          {t.alarm.ringing}
                         </span>
                       ) : null}
                     </span>
@@ -379,7 +388,7 @@ export function FeatureWorkspace({
                               alignItems: 'center',
                             }}
                           >
-                            停止
+                            {t.alarm.stop}
                           </span>
                         </SettingsGlass>
                       </button>
@@ -408,7 +417,7 @@ export function FeatureWorkspace({
                             alignItems: 'center',
                           }}
                         >
-                          刪除
+                          {t.alarm.delete}
                         </span>
                       </SettingsGlass>
                     </button>

@@ -37,6 +37,28 @@ const translation: Translation = {
       general: '一般',
     },
   },
+  worldClock: {
+    title: '世界時計',
+    backToMain: 'メイン画面に戻る',
+    menuLabel: '機能メニューを開く',
+    menuTitle: '機能メニュー',
+    zones: {
+      taipei: { city: '台北', note: '現地' },
+      tokyo: { city: '東京', note: '日本' },
+      london: { city: 'ロンドン', note: 'イギリス' },
+      newYork: { city: 'ニューヨーク', note: '米国東部' },
+      losAngeles: { city: 'ロサンゼルス', note: '米国西部' },
+    },
+  },
+  alarm: {
+    title: 'アラーム',
+    newAlarm: '新規アラーム',
+    alarmNamePlaceholder: 'アラーム名',
+    add: '追加',
+    ringing: '鳴動中',
+    stop: '停止',
+    delete: '削除',
+  },
 };
 
 export default translation;

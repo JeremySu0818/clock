@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'Genel',
     },
   },
+  worldClock: {
+    title: 'Dünya Saati',
+    backToMain: 'Ana ekrana dön',
+    menuLabel: 'Özellikler menüsünü aç',
+    menuTitle: 'Özellikler menüsü',
+    zones: {
+      taipei: { city: 'Taipei', note: 'Yerel' },
+      tokyo: { city: 'Tokyo', note: 'Japonya' },
+      london: { city: 'Londra', note: 'İngiltere' },
+      newYork: { city: 'New York', note: 'ABD Doğu' },
+      losAngeles: { city: 'Los Angeles', note: 'ABD Batı' },
+    },
+  },
+  alarm: {
+    title: 'Alarm',
+    newAlarm: 'Yeni Alarm',
+    alarmNamePlaceholder: 'Alarm Adı',
+    add: 'Ekle',
+    ringing: 'Çalıyor',
+    stop: 'Durdur',
+    delete: 'Sil',
+  },
 };
 
 export default translation;

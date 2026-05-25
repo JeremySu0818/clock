@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'सामान्य',
     },
   },
+  worldClock: {
+    title: 'विश्व घड़ी',
+    backToMain: 'मुख्य स्क्रीन पर वापस जाएं',
+    menuLabel: 'सुविधा मेनू खोलें',
+    menuTitle: 'सुविधा मेनू',
+    zones: {
+      taipei: { city: 'ताइपे', note: 'स्थानीय' },
+      tokyo: { city: 'टोक्यो', note: 'जापान' },
+      london: { city: 'लंदन', note: 'यूके' },
+      newYork: { city: 'न्यू यॉर्क', note: 'पूर्वी अमेरिका' },
+      losAngeles: { city: 'लॉस एंजिल्स', note: 'पश्चिमी अमेरिका' },
+    },
+  },
+  alarm: {
+    title: 'अलार्म',
+    newAlarm: 'नया अलार्म',
+    alarmNamePlaceholder: 'अलार्म का नाम',
+    add: 'जोड़ें',
+    ringing: 'बज रहा है',
+    stop: 'रोकें',
+    delete: 'हटाएं',
+  },
 };
 
 export default translation;

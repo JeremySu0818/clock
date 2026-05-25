@@ -5,6 +5,7 @@ import { LiquidGlassProvider } from '../glass/LiquidGlassProvider';
 import { LiquidGlassSurface } from '../glass/LiquidGlassSurface';
 import { FrostedGlassProvider } from '../glass/FrostedGlassProvider';
 import { useClockSettings } from '../settings/ClockSettingsProvider';
+import { useTranslation } from '../i18n/useTranslation';
 
 export type AppViewMode = 'clock' | 'world-clock' | 'alarm';
 export type FeatureViewMode = Exclude<AppViewMode, 'clock'>;
@@ -19,11 +20,6 @@ type MenuItem = {
   label: string;
 };
 
-const MENU_ITEMS: MenuItem[] = [
-  { mode: 'world-clock', label: '世界時鐘' },
-  { mode: 'alarm', label: '鬧鐘' },
-];
-
 export function FeatureToolsButton({
   activeMode,
   onSelectMode,
@@ -31,6 +27,12 @@ export function FeatureToolsButton({
   const [menuOpen, setMenuOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const { appearance } = useClockSettings();
+  const t = useTranslation();
+
+  const menuItems: MenuItem[] = [
+    { mode: 'world-clock', label: t.worldClock.title },
+    { mode: 'alarm', label: t.alarm.title },
+  ];
 
   const GlassProvider =
     appearance === 'frosted' ? FrostedGlassProvider : LiquidGlassProvider;
@@ -82,7 +84,7 @@ export function FeatureToolsButton({
           position: 'static',
           opacity: activeMode !== 'clock' || menuOpen ? 1 : undefined,
         }}
-        aria-label="開啟時鐘功能選單"
+        aria-label={t.worldClock.menuLabel}
         aria-expanded={menuOpen}
         aria-haspopup="listbox"
         aria-pressed={activeMode !== 'clock' || menuOpen}
@@ -107,9 +109,9 @@ export function FeatureToolsButton({
           <div
             className="settings-menu-popover feature-menu-popover"
             role="listbox"
-            aria-label="時鐘功能選單"
+            aria-label={t.worldClock.menuTitle}
           >
-            {MENU_ITEMS.map(({ mode, label }) => {
+            {menuItems.map(({ mode, label }) => {
               const selected = activeMode === mode;
               return (
                 <button

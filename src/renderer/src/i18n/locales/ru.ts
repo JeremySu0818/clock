@@ -38,6 +38,28 @@ const translation: Translation = {
       general: 'Общие',
     },
   },
+  worldClock: {
+    title: 'Мировое время',
+    backToMain: 'Назад на главный экран',
+    menuLabel: 'Открыть меню функций',
+    menuTitle: 'Меню функций',
+    zones: {
+      taipei: { city: 'Тайбэй', note: 'Местное' },
+      tokyo: { city: 'Токио', note: 'Япония' },
+      london: { city: 'Лондон', note: 'Великобритания' },
+      newYork: { city: 'Нью-Йорк', note: 'Восток США' },
+      losAngeles: { city: 'Лос-Анджелес', note: 'Запад США' },
+    },
+  },
+  alarm: {
+    title: 'Будильник',
+    newAlarm: 'Новый будильник',
+    alarmNamePlaceholder: 'Название будильника',
+    add: 'Добавить',
+    ringing: 'Звонит',
+    stop: 'Остановить',
+    delete: 'Удалить',
+  },
 };
 
 export default translation;

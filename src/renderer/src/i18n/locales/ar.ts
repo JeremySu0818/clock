@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'عام',
     },
   },
+  worldClock: {
+    title: 'التوقيت العالمي',
+    backToMain: 'العودة للشاشة الرئيسية',
+    menuLabel: 'فتح قائمة الميزات',
+    menuTitle: 'قائمة الميزات',
+    zones: {
+      taipei: { city: 'تايبيه', note: 'محلي' },
+      tokyo: { city: 'طوكيو', note: 'اليابان' },
+      london: { city: 'لندن', note: 'المملكة المتحدة' },
+      newYork: { city: 'نيويورك', note: 'شرق أمريكا' },
+      losAngeles: { city: 'لوس أنجلوس', note: 'غرب أمريكا' },
+    },
+  },
+  alarm: {
+    title: 'المنبه',
+    newAlarm: 'منبه جديد',
+    alarmNamePlaceholder: 'اسم المنبه',
+    add: 'إضافة',
+    ringing: 'يرن',
+    stop: 'إيقاف',
+    delete: 'حذف',
+  },
 };
 
 export default translation;

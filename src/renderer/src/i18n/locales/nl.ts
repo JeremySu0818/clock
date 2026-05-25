@@ -38,6 +38,28 @@ const translation: Translation = {
       general: 'Algemeen',
     },
   },
+  worldClock: {
+    title: 'Wereldklok',
+    backToMain: 'Terug naar hoofdscherm',
+    menuLabel: 'Functiemenu openen',
+    menuTitle: 'Functiemenu',
+    zones: {
+      taipei: { city: 'Taipei', note: 'Lokaal' },
+      tokyo: { city: 'Tokio', note: 'Japan' },
+      london: { city: 'Londen', note: 'VK' },
+      newYork: { city: 'New York', note: 'Oost-VS' },
+      losAngeles: { city: 'Los Angeles', note: 'West-VS' },
+    },
+  },
+  alarm: {
+    title: 'Wekker',
+    newAlarm: 'Nieuwe wekker',
+    alarmNamePlaceholder: 'Naam van wekker',
+    add: 'Toevoegen',
+    ringing: 'Gaat af',
+    stop: 'Stoppen',
+    delete: 'Verwijderen',
+  },
 };
 
 export default translation;

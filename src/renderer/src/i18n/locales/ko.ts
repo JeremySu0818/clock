@@ -37,6 +37,28 @@ const translation: Translation = {
       general: '일반',
     },
   },
+  worldClock: {
+    title: '세계 시계',
+    backToMain: '메인 화면으로 돌아가기',
+    menuLabel: '기능 메뉴 열기',
+    menuTitle: '기능 메뉴',
+    zones: {
+      taipei: { city: '타이베이', note: '현지' },
+      tokyo: { city: '도쿄', note: '일본' },
+      london: { city: '런던', note: '영국' },
+      newYork: { city: '뉴욕', note: '미국 동부' },
+      losAngeles: { city: '로스앤젤레스', note: '미국 서부' },
+    },
+  },
+  alarm: {
+    title: '알람',
+    newAlarm: '새 알람',
+    alarmNamePlaceholder: '알람 이름',
+    add: '추가',
+    ringing: '울리는 중',
+    stop: '중지',
+    delete: '삭제',
+  },
 };
 
 export default translation;

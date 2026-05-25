@@ -37,4 +37,26 @@ export type Translation = {
       general: string;
     };
   };
+  worldClock: {
+    title: string;
+    backToMain: string;
+    menuLabel: string;
+    menuTitle: string;
+    zones: {
+      taipei: { city: string; note: string };
+      tokyo: { city: string; note: string };
+      london: { city: string; note: string };
+      newYork: { city: string; note: string };
+      losAngeles: { city: string; note: string };
+    };
+  };
+  alarm: {
+    title: string;
+    newAlarm: string;
+    alarmNamePlaceholder: string;
+    add: string;
+    ringing: string;
+    stop: string;
+    delete: string;
+  };
 };

@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'Generali',
     },
   },
+  worldClock: {
+    title: 'Orologio mondiale',
+    backToMain: 'Torna alla schermata principale',
+    menuLabel: 'Apri menu funzioni',
+    menuTitle: 'Menu funzioni',
+    zones: {
+      taipei: { city: 'Taipei', note: 'Locale' },
+      tokyo: { city: 'Tokyo', note: 'Giappone' },
+      london: { city: 'Londra', note: 'Regno Unito' },
+      newYork: { city: 'New York', note: 'Est degli Stati Uniti' },
+      losAngeles: { city: 'Los Angeles', note: 'Ovest degli Stati Uniti' },
+    },
+  },
+  alarm: {
+    title: 'Sveglia',
+    newAlarm: 'Nuova sveglia',
+    alarmNamePlaceholder: 'Nome sveglia',
+    add: 'Aggiungi',
+    ringing: 'Squilla',
+    stop: 'Ferma',
+    delete: 'Elimina',
+  },
 };
 
 export default translation;

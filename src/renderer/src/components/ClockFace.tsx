@@ -16,7 +16,10 @@ export const ClockFace = memo(function ClockFace({
   const { time, date, dayPeriod } = useClock(language, timeFormat);
 
   return (
-    <div className="clock-face" aria-label={`${currentTimeLabel} ${time}${dayPeriod ? ` ${dayPeriod}` : ''}`}>
+    <div
+      className="clock-face"
+      aria-label={`${currentTimeLabel} ${time}${dayPeriod ? ` ${dayPeriod}` : ''}`}
+    >
       <div className="clock-time" aria-hidden="true" data-contrast-sample>
         {time}
         {dayPeriod && <span className="clock-day-period">{dayPeriod}</span>}

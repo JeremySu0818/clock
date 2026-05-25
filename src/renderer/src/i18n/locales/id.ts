@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'Umum',
     },
   },
+  worldClock: {
+    title: 'Jam Dunia',
+    backToMain: 'Kembali ke layar utama',
+    menuLabel: 'Buka menu fitur',
+    menuTitle: 'Menu fitur',
+    zones: {
+      taipei: { city: 'Taipei', note: 'Lokal' },
+      tokyo: { city: 'Tokyo', note: 'Jepang' },
+      london: { city: 'London', note: 'Inggris' },
+      newYork: { city: 'New York', note: 'AS Timur' },
+      losAngeles: { city: 'Los Angeles', note: 'AS Barat' },
+    },
+  },
+  alarm: {
+    title: 'Alarm',
+    newAlarm: 'Alarm Baru',
+    alarmNamePlaceholder: 'Nama Alarm',
+    add: 'Tambah',
+    ringing: 'Berdering',
+    stop: 'Berhenti',
+    delete: 'Hapus',
+  },
 };
 
 export default translation;

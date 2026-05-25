@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'Általános',
     },
   },
+  worldClock: {
+    title: 'Világóra',
+    backToMain: 'Vissza a főképernyőre',
+    menuLabel: 'Funkciómenü megnyitása',
+    menuTitle: 'Funkciómenü',
+    zones: {
+      taipei: { city: 'Tajpej', note: 'Helyi' },
+      tokyo: { city: 'Tokió', note: 'Japán' },
+      london: { city: 'London', note: 'Egyesült Királyság' },
+      newYork: { city: 'New York', note: 'Keleti USA' },
+      losAngeles: { city: 'Los Angeles', note: 'Nyugati USA' },
+    },
+  },
+  alarm: {
+    title: 'Ébresztő',
+    newAlarm: 'Új ébresztő',
+    alarmNamePlaceholder: 'Ébresztő neve',
+    add: 'Hozzáadás',
+    ringing: 'Csörög',
+    stop: 'Leállítás',
+    delete: 'Törlés',
+  },
 };
 
 export default translation;

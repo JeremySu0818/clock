@@ -37,6 +37,28 @@ const translation: Translation = {
       general: '一般',
     },
   },
+  worldClock: {
+    title: '世界时钟',
+    backToMain: '返回主画面',
+    menuLabel: '打开时钟功能菜单',
+    menuTitle: '时钟功能菜单',
+    zones: {
+      taipei: { city: '台北', note: '本地' },
+      tokyo: { city: '东京', note: '日本' },
+      london: { city: '伦敦', note: '英国' },
+      newYork: { city: '纽约', note: '美东' },
+      losAngeles: { city: '洛杉矶', note: '美西' },
+    },
+  },
+  alarm: {
+    title: '闹钟',
+    newAlarm: '新闹钟',
+    alarmNamePlaceholder: '闹钟名称',
+    add: '新增',
+    ringing: '响铃中',
+    stop: '停止',
+    delete: '删除',
+  },
 };
 
 export default translation;

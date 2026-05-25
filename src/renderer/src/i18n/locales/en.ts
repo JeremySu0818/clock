@@ -37,6 +37,28 @@ const translation: Translation = {
       general: 'General',
     },
   },
+  worldClock: {
+    title: 'World Clock',
+    backToMain: 'Back to main screen',
+    menuLabel: 'Open features menu',
+    menuTitle: 'Features menu',
+    zones: {
+      taipei: { city: 'Taipei', note: 'Local' },
+      tokyo: { city: 'Tokyo', note: 'Japan' },
+      london: { city: 'London', note: 'UK' },
+      newYork: { city: 'New York', note: 'US East' },
+      losAngeles: { city: 'Los Angeles', note: 'US West' },
+    },
+  },
+  alarm: {
+    title: 'Alarm',
+    newAlarm: 'New Alarm',
+    alarmNamePlaceholder: 'Alarm Name',
+    add: 'Add',
+    ringing: 'Ringing',
+    stop: 'Stop',
+    delete: 'Delete',
+  },
 };
 
 export default translation;
