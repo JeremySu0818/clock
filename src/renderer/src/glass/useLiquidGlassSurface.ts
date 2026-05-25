@@ -1,9 +1,15 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react';
 import {
   createLiquidGlass,
-  type LiquidGlassResult
-} from "solid-glass/engines/svg-refraction";
-import { useLiquidGlassConfig } from "./LiquidGlassProvider";
+  type LiquidGlassResult,
+} from 'solid-glass/engines/svg-refraction';
+import { useLiquidGlassConfig } from './LiquidGlassProvider';
 
 type BackdropFilterStyle = CSSProperties & {
   WebkitFilter?: string;
@@ -15,11 +21,13 @@ type LiquidGlassSurfaceState<T extends HTMLElement> = {
   glassStyle: BackdropFilterStyle;
 };
 
-export function useLiquidGlassSurface<T extends HTMLElement>(): LiquidGlassSurfaceState<T> {
+export function useLiquidGlassSurface<
+  T extends HTMLElement,
+>(): LiquidGlassSurfaceState<T> {
   const { config } = useLiquidGlassConfig();
   const ref = useRef<T>(null);
   const animationFrameRef = useRef<number | null>(null);
-  const lastSizeKeyRef = useRef("");
+  const lastSizeKeyRef = useRef('');
   const [glass, setGlass] = useState<LiquidGlassResult | null>(null);
 
   useLayoutEffect(() => {
@@ -28,7 +36,7 @@ export function useLiquidGlassSurface<T extends HTMLElement>(): LiquidGlassSurfa
       return undefined;
     }
 
-    lastSizeKeyRef.current = "";
+    lastSizeKeyRef.current = '';
 
     const updateGlass = (rect: DOMRectReadOnly): void => {
       const width = Math.max(1, Math.round(rect.width));
@@ -44,8 +52,8 @@ export function useLiquidGlassSurface<T extends HTMLElement>(): LiquidGlassSurfa
         createLiquidGlass({
           width,
           height,
-          ...config
-        })
+          ...config,
+        }),
       );
     };
 
@@ -82,8 +90,8 @@ export function useLiquidGlassSurface<T extends HTMLElement>(): LiquidGlassSurfa
     glassStyle: glass
       ? {
           filter: glass.filterRef,
-          WebkitFilter: glass.filterRef
+          WebkitFilter: glass.filterRef,
         }
-      : {}
+      : {},
   };
 }

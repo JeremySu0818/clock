@@ -1,15 +1,15 @@
-import { memo, type ReactElement } from "react";
-import type { SupportedLocale } from "../../../shared/i18n";
-import { useClock } from "../hooks/useClock";
+import { memo, type ReactElement } from 'react';
+import type { SupportedLocale } from '../../../shared/i18n';
+import { useClock } from '../hooks/useClock';
 
 type ClockFaceProps = {
   currentTimeLabel: string;
   language: SupportedLocale;
 };
 
-export const ClockFace = memo(function ClockFace({ 
-  currentTimeLabel, 
-  language 
+export const ClockFace = memo(function ClockFace({
+  currentTimeLabel,
+  language,
 }: ClockFaceProps): ReactElement {
   const { time, date } = useClock(language);
 

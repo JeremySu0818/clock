@@ -1,4 +1,4 @@
-import type { LocaleDirection, SupportedLocale } from "../../../shared/i18n";
+import type { LocaleDirection, SupportedLocale } from '../../../shared/i18n';
 
 export type Translation = {
   locale: SupportedLocale;

@@ -6,20 +6,20 @@ import {
   useMemo,
   useState,
   type ReactElement,
-  type ReactNode
-} from "react";
+  type ReactNode,
+} from 'react';
 import {
   DEFAULT_LANGUAGE_PREFERENCE,
   LOCALE_DIRECTIONS,
   resolveSupportedLocale,
   type LanguagePreference,
-  type SupportedLocale
-} from "../../../shared/i18n";
-import type { 
-  ClockSettings, 
-  GlassAppearance, 
-  TextContrastTone 
-} from "../../../shared/types";
+  type SupportedLocale,
+} from '../../../shared/i18n';
+import type {
+  ClockSettings,
+  GlassAppearance,
+  TextContrastTone,
+} from '../../../shared/types';
 
 type ClockSettingsContextValue = ClockSettings & {
   effectiveLanguage: SupportedLocale;
@@ -32,13 +32,15 @@ type ClockSettingsContextValue = ClockSettings & {
 
 const DEFAULT_CLOCK_SETTINGS: ClockSettings = {
   autoTextContrast: true,
-  appearance: "liquid",
+  appearance: 'liquid',
   language: DEFAULT_LANGUAGE_PREFERENCE,
   launchAtLogin: true,
-  textContrastTone: "light"
+  textContrastTone: 'light',
 };
 
-const ClockSettingsContext = createContext<ClockSettingsContextValue | null>(null);
+const ClockSettingsContext = createContext<ClockSettingsContextValue | null>(
+  null,
+);
 
 type ClockSettingsProviderProps = {
   children: ReactNode;
@@ -52,12 +54,19 @@ function getBrowserLanguages(): string[] {
   return [navigator.language];
 }
 
-export function ClockSettingsProvider({ children }: ClockSettingsProviderProps): ReactElement {
-  const [settings, setSettings] = useState<ClockSettings>(DEFAULT_CLOCK_SETTINGS);
-  const [systemLanguages, setSystemLanguages] = useState<string[]>(getBrowserLanguages);
+export function ClockSettingsProvider({
+  children,
+}: ClockSettingsProviderProps): ReactElement {
+  const [settings, setSettings] = useState<ClockSettings>(
+    DEFAULT_CLOCK_SETTINGS,
+  );
+  const [systemLanguages, setSystemLanguages] =
+    useState<string[]>(getBrowserLanguages);
 
   const effectiveLanguage = useMemo<SupportedLocale>(() => {
-    return settings.language === "auto" ? resolveSupportedLocale(systemLanguages) : settings.language;
+    return settings.language === 'auto'
+      ? resolveSupportedLocale(systemLanguages)
+      : settings.language;
   }, [settings.language, systemLanguages]);
 
   useEffect(() => {
@@ -93,10 +102,10 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
       setSystemLanguages(getBrowserLanguages());
     };
 
-    window.addEventListener("languagechange", updateSystemLanguages);
+    window.addEventListener('languagechange', updateSystemLanguages);
 
     return () => {
-      window.removeEventListener("languagechange", updateSystemLanguages);
+      window.removeEventListener('languagechange', updateSystemLanguages);
     };
   }, []);
 
@@ -108,15 +117,17 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
   const setAutoTextContrast = useCallback((enabled: boolean): void => {
     setSettings((currentSettings) => ({
       ...currentSettings,
-      autoTextContrast: enabled
+      autoTextContrast: enabled,
     }));
-    void window.clockSettings?.setSettings({ autoTextContrast: enabled }).catch(() => {});
+    void window.clockSettings
+      ?.setSettings({ autoTextContrast: enabled })
+      .catch(() => {});
   }, []);
 
   const setAppearance = useCallback((appearance: GlassAppearance): void => {
     setSettings((currentSettings) => ({
       ...currentSettings,
-      appearance
+      appearance,
     }));
     void window.clockSettings?.setSettings({ appearance }).catch(() => {});
   }, []);
@@ -124,7 +135,7 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
   const setLanguage = useCallback((language: LanguagePreference): void => {
     setSettings((currentSettings) => ({
       ...currentSettings,
-      language
+      language,
     }));
     void window.clockSettings?.setSettings({ language }).catch(() => {});
   }, []);
@@ -132,24 +143,31 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
   const setLaunchAtLogin = useCallback((enabled: boolean): void => {
     setSettings((currentSettings) => ({
       ...currentSettings,
-      launchAtLogin: enabled
+      launchAtLogin: enabled,
     }));
-    void window.clockSettings?.setSettings({ launchAtLogin: enabled }).catch(() => {});
+    void window.clockSettings
+      ?.setSettings({ launchAtLogin: enabled })
+      .catch(() => {});
   }, []);
 
-  const setTextContrastTone = useCallback((textContrastTone: TextContrastTone): void => {
-    setSettings((currentSettings) => {
-      if (currentSettings.textContrastTone === textContrastTone) {
-        return currentSettings;
-      }
+  const setTextContrastTone = useCallback(
+    (textContrastTone: TextContrastTone): void => {
+      setSettings((currentSettings) => {
+        if (currentSettings.textContrastTone === textContrastTone) {
+          return currentSettings;
+        }
 
-      return {
-        ...currentSettings,
-        textContrastTone
-      };
-    });
-    void window.clockSettings?.setSettings({ textContrastTone }).catch(() => {});
-  }, []);
+        return {
+          ...currentSettings,
+          textContrastTone,
+        };
+      });
+      void window.clockSettings
+        ?.setSettings({ textContrastTone })
+        .catch(() => {});
+    },
+    [],
+  );
 
   const value = useMemo<ClockSettingsContextValue>(
     () => ({
@@ -159,19 +177,33 @@ export function ClockSettingsProvider({ children }: ClockSettingsProviderProps):
       setAppearance,
       setLanguage,
       setLaunchAtLogin,
-      setTextContrastTone
+      setTextContrastTone,
     }),
-    [effectiveLanguage, setAppearance, setAutoTextContrast, setLanguage, setLaunchAtLogin, setTextContrastTone, settings]
+    [
+      effectiveLanguage,
+      setAppearance,
+      setAutoTextContrast,
+      setLanguage,
+      setLaunchAtLogin,
+      setTextContrastTone,
+      settings,
+    ],
   );
 
-  return <ClockSettingsContext.Provider value={value}>{children}</ClockSettingsContext.Provider>;
+  return (
+    <ClockSettingsContext.Provider value={value}>
+      {children}
+    </ClockSettingsContext.Provider>
+  );
 }
 
 export function useClockSettings(): ClockSettingsContextValue {
   const context = useContext(ClockSettingsContext);
 
   if (!context) {
-    throw new Error("useClockSettings must be used within ClockSettingsProvider.");
+    throw new Error(
+      'useClockSettings must be used within ClockSettingsProvider.',
+    );
   }
 
   return context;

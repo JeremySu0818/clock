@@ -1,7 +1,13 @@
-import { createContext, useContext, useMemo, type ReactElement, type ReactNode } from "react";
-import type { LiquidGlassOptions } from "solid-glass/engines/svg-refraction";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import type { LiquidGlassOptions } from 'solid-glass/engines/svg-refraction';
 
-export type LiquidGlassConfig = Omit<LiquidGlassOptions, "width" | "height">;
+export type LiquidGlassConfig = Omit<LiquidGlassOptions, 'width' | 'height'>;
 
 export const DEFAULT_LIQUID_GLASS_CONFIG = Object.freeze({
   radius: 60,
@@ -9,8 +15,8 @@ export const DEFAULT_LIQUID_GLASS_CONFIG = Object.freeze({
   glassThickness: 300,
   blur: 0,
   refractiveIndex: 1.5,
-  surface: "convexSquircle",
-  specularOpacity: 1
+  surface: 'convexSquircle',
+  specularOpacity: 1,
 } satisfies LiquidGlassConfig);
 
 type LiquidGlassContextValue = {
@@ -24,25 +30,34 @@ type LiquidGlassProviderProps = {
   config?: Partial<LiquidGlassConfig>;
 };
 
-export function LiquidGlassProvider({ children, config }: LiquidGlassProviderProps): ReactElement {
+export function LiquidGlassProvider({
+  children,
+  config,
+}: LiquidGlassProviderProps): ReactElement {
   const value = useMemo<LiquidGlassContextValue>(
     () => ({
       config: {
         ...DEFAULT_LIQUID_GLASS_CONFIG,
-        ...config
-      }
+        ...config,
+      },
     }),
-    [config]
+    [config],
   );
 
-  return <LiquidGlassContext.Provider value={value}>{children}</LiquidGlassContext.Provider>;
+  return (
+    <LiquidGlassContext.Provider value={value}>
+      {children}
+    </LiquidGlassContext.Provider>
+  );
 }
 
 export function useLiquidGlassConfig(): LiquidGlassContextValue {
   const context = useContext(LiquidGlassContext);
 
   if (!context) {
-    throw new Error("useLiquidGlassConfig must be used within LiquidGlassProvider.");
+    throw new Error(
+      'useLiquidGlassConfig must be used within LiquidGlassProvider.',
+    );
   }
 
   return context;

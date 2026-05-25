@@ -6,10 +6,12 @@ import {
   useState,
   type ReactElement,
   type ReactNode,
-  type RefObject
-} from "react";
+  type RefObject,
+} from 'react';
 
-type DesktopGlassMetrics = Awaited<ReturnType<NonNullable<typeof window.desktopGlass>["getWindowMetrics"]>>;
+type DesktopGlassMetrics = Awaited<
+  ReturnType<NonNullable<typeof window.desktopGlass>['getWindowMetrics']>
+>;
 
 type ScreenCaptureContextValue = {
   stream: MediaStream | null;
@@ -18,7 +20,7 @@ type ScreenCaptureContextValue = {
 
 const ScreenCaptureContext = createContext<ScreenCaptureContextValue>({
   stream: null,
-  metricsRef: { current: null }
+  metricsRef: { current: null },
 });
 
 async function startDisplayCapture(): Promise<MediaStream> {
@@ -26,10 +28,10 @@ async function startDisplayCapture(): Promise<MediaStream> {
     video: {
       frameRate: {
         ideal: 60,
-        max: 60
-      }
+        max: 60,
+      },
     },
-    audio: false
+    audio: false,
   });
 }
 
@@ -37,7 +39,9 @@ type ScreenCaptureProviderProps = {
   children: ReactNode;
 };
 
-export function ScreenCaptureProvider({ children }: ScreenCaptureProviderProps): ReactElement {
+export function ScreenCaptureProvider({
+  children,
+}: ScreenCaptureProviderProps): ReactElement {
   const streamRef = useRef<MediaStream | null>(null);
   const metricsRef = useRef<DesktopGlassMetrics | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);

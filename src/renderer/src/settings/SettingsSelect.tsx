@@ -1,7 +1,7 @@
-import { useEffect, useRef, type ReactElement } from "react";
-import { SettingsGlass } from "./SettingsGlass";
+import { useEffect, useRef, type ReactElement } from 'react';
+import { SettingsGlass } from './SettingsGlass';
 
-export type SettingsMenuId = "appearance" | "language";
+export type SettingsMenuId = 'appearance' | 'language';
 
 export type SettingsSelectOption<TValue extends string> = {
   label: string;
@@ -29,11 +29,14 @@ export function SettingsSelect<TValue extends string>({
   onOpenMenuChange,
   openMenu,
   options,
-  value
+  value,
 }: SettingsSelectProps<TValue>): ReactElement {
   const menuRef = useRef<HTMLDivElement | null>(null);
   const isOpen = openMenu === menuKey;
-  const selectedLabel = options.find((option) => option.value === value)?.label ?? options[0]?.label ?? "";
+  const selectedLabel =
+    options.find((option) => option.value === value)?.label ??
+    options[0]?.label ??
+    '';
 
   useEffect(() => {
     if (!isOpen) {
@@ -41,17 +44,20 @@ export function SettingsSelect<TValue extends string>({
     }
 
     const handlePointerDown = (event: PointerEvent): void => {
-      if (event.target instanceof Node && menuRef.current?.contains(event.target)) {
+      if (
+        event.target instanceof Node &&
+        menuRef.current?.contains(event.target)
+      ) {
         return;
       }
 
       onOpenMenuChange(null);
     };
 
-    window.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener('pointerdown', handlePointerDown);
 
     return () => {
-      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener('pointerdown', handlePointerDown);
     };
   }, [isOpen, onOpenMenuChange]);
 
@@ -67,7 +73,7 @@ export function SettingsSelect<TValue extends string>({
         aria-labelledby={`${labelId} ${buttonId}`}
         onClick={() => onOpenMenuChange(isOpen ? null : menuKey)}
         onKeyDown={(event) => {
-          if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
             onOpenMenuChange(menuKey);
           }

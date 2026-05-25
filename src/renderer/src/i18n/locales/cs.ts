@@ -1,38 +1,37 @@
-import type { Translation } from "../types";
+import type { Translation } from '../types';
 
 const translation: Translation = {
-  "locale": "cs",
-  "languageName": "Čeština",
-  "direction": "ltr",
-  "clock": {
-    "currentTime": "Aktuální čas"
+  locale: 'cs',
+  languageName: 'Čeština',
+  direction: 'ltr',
+  clock: {
+    currentTime: 'Aktuální čas',
   },
-  "settings": {
-    "appearanceLabel": "Vzhled skla",
-    "autoTextContrast": "Automaticky přizpůsobit číslice obrázku na pozadí",
-    "categoriesLabel": "Kategorie nastavení",
-    "closeSettings": "Zavřít nastavení",
-    "dialogLabel": "Nastavení",
-    "languageLabel": "Jazyk",
-    "launchAtLogin": "Spustit po přihlášení",
-    "settingsButtonLabel": "Otevřít nastavení",
-    "languageOptions": {
-      "auto": "Automaticky rozpoznat"
+  settings: {
+    appearanceLabel: 'Vzhled skla',
+    autoTextContrast: 'Automaticky přizpůsobit číslice obrázku na pozadí',
+    categoriesLabel: 'Kategorie nastavení',
+    closeSettings: 'Zavřít nastavení',
+    dialogLabel: 'Nastavení',
+    languageLabel: 'Jazyk',
+    launchAtLogin: 'Spustit po přihlášení',
+    settingsButtonLabel: 'Otevřít nastavení',
+    languageOptions: {
+      auto: 'Automaticky rozpoznat',
     },
-    "appearanceOptions": {
-      "frosted": "Matné sklo",
-      "liquid": "Tekuté sklo"
+    appearanceOptions: {
+      frosted: 'Matné sklo',
+      liquid: 'Tekuté sklo',
     },
-    "sections": {
-      "appearance": "Nastavení vzhledu",
-      "general": "Obecná nastavení"
+    sections: {
+      appearance: 'Nastavení vzhledu',
+      general: 'Obecná nastavení',
     },
-    "tabs": {
-      "appearance": "Vzhled",
-      "general": "Obecné"
-    }
-  }
+    tabs: {
+      appearance: 'Vzhled',
+      general: 'Obecné',
+    },
+  },
 };
 
 export default translation;
-

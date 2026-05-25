@@ -15,7 +15,9 @@
     "clean:release": "node scripts/clean-release.cjs",
     "build": "npm run clean:release && npm run typecheck && electron-vite build && electron-builder --win portable --x64 && node scripts/prune-release.cjs",
     "build:win-unpacked": "npm run clean:release && npm run typecheck && electron-vite build && electron-builder --win dir --x64",
-    "build:installer": "node scripts/build-installer.cjs"
+    "build:installer": "node scripts/build-installer.cjs",
+    "format": "prettier --write .",
+    "check-format": "prettier --check ."
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -24,6 +26,7 @@
     "solid-glass": "^0.0.3"
   },
   "devDependencies": {
+    "prettier": "^3.5.3",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",

@@ -1,4 +1,4 @@
-import { type ReactElement, type SVGProps } from "react";
+import { type ReactElement, type SVGProps } from 'react';
 
 export function FeatureToolsIcon(props: SVGProps<SVGSVGElement>): ReactElement {
   return (
@@ -22,7 +22,12 @@ export function FeatureToolsIcon(props: SVGProps<SVGSVGElement>): ReactElement {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path d="M12 11V14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path
+        d="M12 11V14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
       <path d="M2 13H22" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );

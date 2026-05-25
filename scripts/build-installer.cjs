@@ -19,7 +19,12 @@ const run = (command, args) => {
 };
 
 if (process.platform === 'win32') {
-  run('cmd.exe', ['/d', '/s', '/c', path.join(__dirname, 'build-installer.bat')]);
+  run('cmd.exe', [
+    '/d',
+    '/s',
+    '/c',
+    path.join(__dirname, 'build-installer.bat'),
+  ]);
 }
 
 if (process.platform === 'darwin' || process.platform === 'linux') {

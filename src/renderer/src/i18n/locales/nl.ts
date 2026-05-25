@@ -1,38 +1,38 @@
-import type { Translation } from "../types";
+import type { Translation } from '../types';
 
 const translation: Translation = {
-  "locale": "nl",
-  "languageName": "Nederlands",
-  "direction": "ltr",
-  "clock": {
-    "currentTime": "Huidige tijd"
+  locale: 'nl',
+  languageName: 'Nederlands',
+  direction: 'ltr',
+  clock: {
+    currentTime: 'Huidige tijd',
   },
-  "settings": {
-    "appearanceLabel": "Glasweergave",
-    "autoTextContrast": "Cijfers automatisch aanpassen aan de achtergrondafbeelding",
-    "categoriesLabel": "Instellingscategorieën",
-    "closeSettings": "Instellingen sluiten",
-    "dialogLabel": "Instellingen",
-    "languageLabel": "Taal",
-    "launchAtLogin": "Starten bij aanmelden",
-    "settingsButtonLabel": "Instellingen openen",
-    "languageOptions": {
-      "auto": "Automatisch detecteren"
+  settings: {
+    appearanceLabel: 'Glasweergave',
+    autoTextContrast:
+      'Cijfers automatisch aanpassen aan de achtergrondafbeelding',
+    categoriesLabel: 'Instellingscategorieën',
+    closeSettings: 'Instellingen sluiten',
+    dialogLabel: 'Instellingen',
+    languageLabel: 'Taal',
+    launchAtLogin: 'Starten bij aanmelden',
+    settingsButtonLabel: 'Instellingen openen',
+    languageOptions: {
+      auto: 'Automatisch detecteren',
     },
-    "appearanceOptions": {
-      "frosted": "Matglas",
-      "liquid": "Liquid Glass"
+    appearanceOptions: {
+      frosted: 'Matglas',
+      liquid: 'Liquid Glass',
     },
-    "sections": {
-      "appearance": "Weergave-instellingen",
-      "general": "Algemene instellingen"
+    sections: {
+      appearance: 'Weergave-instellingen',
+      general: 'Algemene instellingen',
     },
-    "tabs": {
-      "appearance": "Weergave",
-      "general": "Algemeen"
-    }
-  }
+    tabs: {
+      appearance: 'Weergave',
+      general: 'Algemeen',
+    },
+  },
 };
 
 export default translation;
-

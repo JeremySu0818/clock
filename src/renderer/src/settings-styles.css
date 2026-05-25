@@ -224,7 +224,9 @@ body {
   height: 100%;
   display: block;
   border-radius: inherit;
-  transition: background-color 0.16s ease-out, box-shadow 0.16s ease-out;
+  transition:
+    background-color 0.16s ease-out,
+    box-shadow 0.16s ease-out;
 }
 
 .settings-control-glass.settings-switch-track {
@@ -233,7 +235,10 @@ body {
 }
 
 .settings-switch[aria-checked='true'] .settings-switch-track {
-  background: var(--settings-switch-track-active-color, rgb(255 255 255 / 0.24));
+  background: var(
+    --settings-switch-track-active-color,
+    rgb(255 255 255 / 0.24)
+  );
 }
 
 .settings-switch-thumb {

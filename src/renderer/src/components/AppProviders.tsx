@@ -1,7 +1,7 @@
-import { type ReactNode, type ReactElement } from "react";
-import { ClockSettingsProvider } from "../settings/ClockSettingsProvider";
-import { ScreenCaptureProvider } from "../glass/ScreenCaptureProvider";
-import { GlassModeProvider } from "../glass/GlassModeProvider";
+import { type ReactNode, type ReactElement } from 'react';
+import { ClockSettingsProvider } from '../settings/ClockSettingsProvider';
+import { ScreenCaptureProvider } from '../glass/ScreenCaptureProvider';
+import { GlassModeProvider } from '../glass/GlassModeProvider';
 
 type AppProvidersProps = {
   children: ReactNode;

@@ -1,38 +1,37 @@
-import type { Translation } from "../types";
+import type { Translation } from '../types';
 
 const translation: Translation = {
-  "locale": "it",
-  "languageName": "Italiano",
-  "direction": "ltr",
-  "clock": {
-    "currentTime": "Ora attuale"
+  locale: 'it',
+  languageName: 'Italiano',
+  direction: 'ltr',
+  clock: {
+    currentTime: 'Ora attuale',
   },
-  "settings": {
-    "appearanceLabel": "Aspetto del vetro",
-    "autoTextContrast": "Adatta automaticamente le cifre all'immagine di sfondo",
-    "categoriesLabel": "Categorie impostazioni",
-    "closeSettings": "Chiudi impostazioni",
-    "dialogLabel": "Impostazioni",
-    "languageLabel": "Lingua",
-    "launchAtLogin": "Avvia all'accesso",
-    "settingsButtonLabel": "Apri impostazioni",
-    "languageOptions": {
-      "auto": "Rileva automaticamente"
+  settings: {
+    appearanceLabel: 'Aspetto del vetro',
+    autoTextContrast: "Adatta automaticamente le cifre all'immagine di sfondo",
+    categoriesLabel: 'Categorie impostazioni',
+    closeSettings: 'Chiudi impostazioni',
+    dialogLabel: 'Impostazioni',
+    languageLabel: 'Lingua',
+    launchAtLogin: "Avvia all'accesso",
+    settingsButtonLabel: 'Apri impostazioni',
+    languageOptions: {
+      auto: 'Rileva automaticamente',
     },
-    "appearanceOptions": {
-      "frosted": "Vetro satinato",
-      "liquid": "Liquid Glass"
+    appearanceOptions: {
+      frosted: 'Vetro satinato',
+      liquid: 'Liquid Glass',
     },
-    "sections": {
-      "appearance": "Impostazioni aspetto",
-      "general": "Impostazioni generali"
+    sections: {
+      appearance: 'Impostazioni aspetto',
+      general: 'Impostazioni generali',
     },
-    "tabs": {
-      "appearance": "Aspetto",
-      "general": "Generali"
-    }
-  }
+    tabs: {
+      appearance: 'Aspetto',
+      general: 'Generali',
+    },
+  },
 };
 
 export default translation;
-

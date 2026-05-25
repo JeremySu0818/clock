@@ -376,7 +376,9 @@ function publishClockSettings(): void {
 
 function isSettingsVisible(): boolean {
   return Boolean(
-    settingsWindow && !settingsWindow.isDestroyed() && settingsWindow.isVisible(),
+    settingsWindow &&
+    !settingsWindow.isDestroyed() &&
+    settingsWindow.isVisible(),
   );
 }
 

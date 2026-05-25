@@ -1,14 +1,21 @@
-import { useEffect, useId, useState, type ReactElement } from "react";
-import type { LanguagePreference } from "../../../shared/i18n";
-import { LANGUAGE_OPTIONS } from "../i18n";
-import { useTranslation } from "../i18n/useTranslation";
-import { useClockSettings } from "./ClockSettingsProvider";
-import { SettingsGlass } from "./SettingsGlass";
-import { SettingsSelect, type SettingsMenuId, type SettingsSelectOption } from "./SettingsSelect";
-import { SWITCH_THUMB_GLASS_CONFIG, SWITCH_TRACK_GLASS_CONFIG } from "./settings-constants";
-import type { GlassAppearance } from "../../../shared/types";
+import { useEffect, useId, useState, type ReactElement } from 'react';
+import type { LanguagePreference } from '../../../shared/i18n';
+import { LANGUAGE_OPTIONS } from '../i18n';
+import { useTranslation } from '../i18n/useTranslation';
+import { useClockSettings } from './ClockSettingsProvider';
+import { SettingsGlass } from './SettingsGlass';
+import {
+  SettingsSelect,
+  type SettingsMenuId,
+  type SettingsSelectOption,
+} from './SettingsSelect';
+import {
+  SWITCH_THUMB_GLASS_CONFIG,
+  SWITCH_TRACK_GLASS_CONFIG,
+} from './settings-constants';
+import type { GlassAppearance } from '../../../shared/types';
 
-type SettingsTab = "general" | "appearance";
+type SettingsTab = 'general' | 'appearance';
 
 export function SettingsPanel(): ReactElement {
   const autoTextContrastId = useId();
@@ -21,44 +28,47 @@ export function SettingsPanel(): ReactElement {
   const launchAtLoginId = useId();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
-    return (localStorage.getItem("clockSettingsActiveTab") as SettingsTab) || "general";
+    return (
+      (localStorage.getItem('clockSettingsActiveTab') as SettingsTab) ||
+      'general'
+    );
   });
   const [openMenu, setOpenMenu] = useState<SettingsMenuId | null>(null);
-  
-  const { 
-    autoTextContrast, 
-    appearance, 
-    language, 
+
+  const {
+    autoTextContrast,
+    appearance,
+    language,
     launchAtLogin,
-    setAppearance, 
-    setAutoTextContrast, 
+    setAppearance,
+    setAutoTextContrast,
     setLanguage,
-    setLaunchAtLogin
+    setLaunchAtLogin,
   } = useClockSettings();
-  
+
   const t = useTranslation();
 
   const settingsTabs: Array<{ id: SettingsTab; label: string }> = [
-    { id: "general", label: t.settings.tabs.general },
-    { id: "appearance", label: t.settings.tabs.appearance }
+    { id: 'general', label: t.settings.tabs.general },
+    { id: 'appearance', label: t.settings.tabs.appearance },
   ];
 
   const appearanceOptions: Array<SettingsSelectOption<GlassAppearance>> = [
-    { value: "liquid", label: t.settings.appearanceOptions.liquid },
-    { value: "frosted", label: t.settings.appearanceOptions.frosted }
+    { value: 'liquid', label: t.settings.appearanceOptions.liquid },
+    { value: 'frosted', label: t.settings.appearanceOptions.frosted },
   ];
   const languageOptions: Array<SettingsSelectOption<LanguagePreference>> = [
-    { value: "auto", label: t.settings.languageOptions.auto },
-    ...LANGUAGE_OPTIONS
+    { value: 'auto', label: t.settings.languageOptions.auto },
+    ...LANGUAGE_OPTIONS,
   ];
 
   useEffect(() => {
-    localStorage.setItem("clockSettingsActiveTab", activeTab);
+    localStorage.setItem('clockSettingsActiveTab', activeTab);
   }, [activeTab]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") {
+      if (event.key === 'Escape') {
         if (openMenu) {
           setOpenMenu(null);
           return;
@@ -68,15 +78,19 @@ export function SettingsPanel(): ReactElement {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [openMenu]);
 
   return (
-    <div className="settings-panel" role="dialog" aria-label={t.settings.dialogLabel}>
+    <div
+      className="settings-panel"
+      role="dialog"
+      aria-label={t.settings.dialogLabel}
+    >
       <button
         type="button"
         className="settings-close"
@@ -106,14 +120,20 @@ export function SettingsPanel(): ReactElement {
 
       <section
         className="settings-content"
-        aria-label={activeTab === "general" ? t.settings.sections.general : t.settings.sections.appearance}
+        aria-label={
+          activeTab === 'general'
+            ? t.settings.sections.general
+            : t.settings.sections.appearance
+        }
       >
         <div key={activeTab} className="settings-tab-pane">
-          {activeTab === "general" ? (
+          {activeTab === 'general' ? (
             <>
               <label className="settings-row" htmlFor={autoTextContrastId}>
                 <span className="settings-copy">
-                  <span className="settings-title">{t.settings.autoTextContrast}</span>
+                  <span className="settings-title">
+                    {t.settings.autoTextContrast}
+                  </span>
                 </span>
                 <button
                   id={autoTextContrastId}
@@ -123,9 +143,18 @@ export function SettingsPanel(): ReactElement {
                   aria-checked={autoTextContrast}
                   onClick={() => setAutoTextContrast(!autoTextContrast)}
                 >
-                  <SettingsGlass className="settings-switch-track" config={SWITCH_TRACK_GLASS_CONFIG}>
-                    <SettingsGlass className="settings-switch-thumb" config={SWITCH_THUMB_GLASS_CONFIG}>
-                      <span className="settings-switch-thumb-tone" aria-hidden="true" />
+                  <SettingsGlass
+                    className="settings-switch-track"
+                    config={SWITCH_TRACK_GLASS_CONFIG}
+                  >
+                    <SettingsGlass
+                      className="settings-switch-thumb"
+                      config={SWITCH_THUMB_GLASS_CONFIG}
+                    >
+                      <span
+                        className="settings-switch-thumb-tone"
+                        aria-hidden="true"
+                      />
                     </SettingsGlass>
                   </SettingsGlass>
                 </button>
@@ -133,7 +162,9 @@ export function SettingsPanel(): ReactElement {
 
               <label className="settings-row" htmlFor={launchAtLoginId}>
                 <span className="settings-copy">
-                  <span className="settings-title">{t.settings.launchAtLogin}</span>
+                  <span className="settings-title">
+                    {t.settings.launchAtLogin}
+                  </span>
                 </span>
                 <button
                   id={launchAtLoginId}
@@ -143,9 +174,18 @@ export function SettingsPanel(): ReactElement {
                   aria-checked={launchAtLogin}
                   onClick={() => setLaunchAtLogin(!launchAtLogin)}
                 >
-                  <SettingsGlass className="settings-switch-track" config={SWITCH_TRACK_GLASS_CONFIG}>
-                    <SettingsGlass className="settings-switch-thumb" config={SWITCH_THUMB_GLASS_CONFIG}>
-                      <span className="settings-switch-thumb-tone" aria-hidden="true" />
+                  <SettingsGlass
+                    className="settings-switch-track"
+                    config={SWITCH_TRACK_GLASS_CONFIG}
+                  >
+                    <SettingsGlass
+                      className="settings-switch-thumb"
+                      config={SWITCH_THUMB_GLASS_CONFIG}
+                    >
+                      <span
+                        className="settings-switch-thumb-tone"
+                        aria-hidden="true"
+                      />
                     </SettingsGlass>
                   </SettingsGlass>
                 </button>

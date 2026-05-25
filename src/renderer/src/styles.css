@@ -123,7 +123,7 @@
 
 .clock-shell:hover .settings-button,
 .settings-button:focus-visible,
-.settings-button[aria-pressed="true"] {
+.settings-button[aria-pressed='true'] {
   opacity: 1;
 }
 
@@ -226,4 +226,3 @@
   z-index: -1;
   -webkit-app-region: no-drag;
 }
-

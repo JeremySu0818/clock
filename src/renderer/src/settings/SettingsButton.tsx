@@ -1,24 +1,25 @@
-import { type ReactElement, useEffect, useMemo, useState } from "react";
-import { FrostedGlassProvider } from "../glass/FrostedGlassProvider";
-import { LiquidGlassProvider } from "../glass/LiquidGlassProvider";
-import { LiquidGlassSurface } from "../glass/LiquidGlassSurface";
-import { useTranslation } from "../i18n/useTranslation";
-import { SettingsIcon } from "../components/icons/SettingsIcon";
-import { useClockSettings } from "./ClockSettingsProvider";
+import { type ReactElement, useEffect, useMemo, useState } from 'react';
+import { FrostedGlassProvider } from '../glass/FrostedGlassProvider';
+import { LiquidGlassProvider } from '../glass/LiquidGlassProvider';
+import { LiquidGlassSurface } from '../glass/LiquidGlassSurface';
+import { useTranslation } from '../i18n/useTranslation';
+import { SettingsIcon } from '../components/icons/SettingsIcon';
+import { useClockSettings } from './ClockSettingsProvider';
 
 export function SettingsButton(): ReactElement {
   const { appearance } = useClockSettings();
   const t = useTranslation();
   const [settingsVisible, setSettingsVisible] = useState(false);
 
-  const GlassProvider = appearance === "frosted" ? FrostedGlassProvider : LiquidGlassProvider;
+  const GlassProvider =
+    appearance === 'frosted' ? FrostedGlassProvider : LiquidGlassProvider;
 
   const glassConfig = useMemo(() => {
     return {
       radius: 16,
       bezelWidth: 0,
-      glassThickness: appearance === "frosted" ? 100 : 150,
-      surface: "convexCircle" as const
+      glassThickness: appearance === 'frosted' ? 100 : 150,
+      surface: 'convexCircle' as const,
     };
   }, [appearance]);
 
@@ -63,7 +64,11 @@ export function SettingsButton(): ReactElement {
       onClick={handleClick}
     >
       <GlassProvider config={glassConfig}>
-        <LiquidGlassSurface as="span" className="settings-button-glass" autoTextContrast={true}>
+        <LiquidGlassSurface
+          as="span"
+          className="settings-button-glass"
+          autoTextContrast={true}
+        >
           <SettingsIcon />
         </LiquidGlassSurface>
       </GlassProvider>
