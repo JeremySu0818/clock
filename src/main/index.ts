@@ -90,6 +90,7 @@ const CLOCK_SETTINGS_KEYS: Array<keyof ClockSettings> = [
 let clockSettings: ClockSettings = createDefaultClockSettings();
 let clockWindow: BrowserWindow | null = null;
 let settingsWindow: BrowserWindow | null = null;
+let isAppQuitting = false;
 
 const gotSingleInstanceLock = app.requestSingleInstanceLock();
 
@@ -374,7 +375,9 @@ function publishClockSettings(): void {
 }
 
 function isSettingsVisible(): boolean {
-  return Boolean(settingsWindow && !settingsWindow.isDestroyed());
+  return Boolean(
+    settingsWindow && !settingsWindow.isDestroyed() && settingsWindow.isVisible(),
+  );
 }
 
 function publishSettingsVisibility(): void {
@@ -453,6 +456,31 @@ function positionSettingsWindow(): void {
     }),
   );
   publishDesktopGlassMetrics(settingsWindow);
+}
+
+function hideSettingsWindow(): void {
+  if (!settingsWindow || settingsWindow.isDestroyed()) {
+    return;
+  }
+
+  settingsWindow.hide();
+  publishSettingsVisibility();
+}
+
+function showSettingsWindow(): void {
+  if (!settingsWindow || settingsWindow.isDestroyed()) {
+    return;
+  }
+
+  positionSettingsWindow();
+
+  if (!settingsWindow.isVisible()) {
+    settingsWindow.show();
+  }
+
+  settingsWindow.moveTop();
+  settingsWindow.focus();
+  publishSettingsVisibility();
 }
 
 function getDesktopGlassMetrics(window: BrowserWindow): DesktopGlassMetrics {
@@ -602,7 +630,9 @@ function createClockWindow(): BrowserWindow {
     clockWindow = null;
 
     if (settingsWindow && !settingsWindow.isDestroyed()) {
-      settingsWindow.close();
+      settingsWindow.destroy();
+      settingsWindow = null;
+      publishSettingsVisibility();
     }
   });
 
@@ -678,15 +708,24 @@ function createSettingsWindow(): BrowserWindow | null {
   };
 
   win.once('ready-to-show', () => {
-    positionSettingsWindow();
+    showSettingsWindow();
   });
 
   win.on('move', throttledPublishMetrics);
   win.on('resize', throttledPublishMetrics);
 
   win.webContents.on('did-finish-load', () => {
-    positionSettingsWindow();
+    showSettingsWindow();
     publishClockSettings();
+  });
+
+  win.on('close', (event) => {
+    if (isAppQuitting) {
+      return;
+    }
+
+    event.preventDefault();
+    hideSettingsWindow();
   });
 
   win.on('closed', () => {
@@ -752,7 +791,11 @@ if (gotSingleInstanceLock) {
 
       if (senderWindow === clockWindow) {
         if (settingsWindow && !settingsWindow.isDestroyed()) {
-          settingsWindow.close();
+          if (settingsWindow.isVisible()) {
+            hideSettingsWindow();
+          } else {
+            showSettingsWindow();
+          }
         } else {
           createSettingsWindow();
         }
@@ -760,9 +803,7 @@ if (gotSingleInstanceLock) {
     });
 
     ipcMain.on(CLOSE_SETTINGS_CHANNEL, () => {
-      if (settingsWindow && !settingsWindow.isDestroyed()) {
-        settingsWindow.close();
-      }
+      hideSettingsWindow();
     });
 
     globalShortcut.register('CommandOrControl+Alt+Space', () => {
@@ -809,6 +850,10 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('before-quit', () => {
+  isAppQuitting = true;
 });
 
 app.on('will-quit', () => {
