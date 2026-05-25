@@ -648,7 +648,7 @@ function createClockWindow(): BrowserWindow {
   return win;
 }
 
-function createSettingsWindow(): BrowserWindow | null {
+function createSettingsWindow(showOnReady: boolean): BrowserWindow | null {
   if (!clockWindow || clockWindow.isDestroyed()) {
     return null;
   }
@@ -680,7 +680,7 @@ function createSettingsWindow(): BrowserWindow | null {
     fullscreenable: false,
     skipTaskbar: true,
     alwaysOnTop: true,
-    show: true,
+    show: false,
     icon: getAppIconPath(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -707,16 +707,17 @@ function createSettingsWindow(): BrowserWindow | null {
     }, 4);
   };
 
-  win.once('ready-to-show', () => {
-    showSettingsWindow();
-  });
-
   win.on('move', throttledPublishMetrics);
   win.on('resize', throttledPublishMetrics);
 
   win.webContents.on('did-finish-load', () => {
-    showSettingsWindow();
     publishClockSettings();
+
+    if (showOnReady) {
+      showSettingsWindow();
+    } else {
+      publishSettingsVisibility();
+    }
   });
 
   win.on('close', (event) => {
@@ -786,6 +787,14 @@ if (gotSingleInstanceLock) {
 
     createClockWindow();
 
+    if (clockWindow && !clockWindow.isDestroyed()) {
+      clockWindow.webContents.once('did-finish-load', () => {
+        if (!settingsWindow || settingsWindow.isDestroyed()) {
+          createSettingsWindow(false);
+        }
+      });
+    }
+
     ipcMain.on(TOGGLE_SETTINGS_CHANNEL, (event) => {
       const senderWindow = BrowserWindow.fromWebContents(event.sender);
 
@@ -797,7 +806,7 @@ if (gotSingleInstanceLock) {
             showSettingsWindow();
           }
         } else {
-          createSettingsWindow();
+          createSettingsWindow(true);
         }
       }
     });
